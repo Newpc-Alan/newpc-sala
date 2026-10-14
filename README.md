@@ -1,4 +1,4 @@
-# Portal Maestro · v0.5.1 (teste de bancada)
+# Portal Maestro · v0.5.2 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
@@ -78,3 +78,5 @@ Dados novos no banco: `aulas/{codigo}/controle/afinacao`, `aulas/{codigo}/contro
 O bloqueio de tela só vale enquanto o painel do professor está vivo. O painel envia um sinal (`controle/professorVivo`) a cada 15 s; se a extensão ficar **mais de 2 minutos sem esse sinal** (aba fechada, sem internet, notebook desligado), ela **libera a tela sozinha**. O painel também avisa antes de fechar quando há alunos bloqueados.
 
 Emergência sem painel: encerrar ou apagar a aula no Firebase (`aulas/{codigo}`) libera todos em até 3 s.
+- **v0.5.2:** o bloqueio nunca sobrevive a um reinício do Chrome (só volta se o painel confirmar em até 3 s), e a extensão nunca fecha a última aba de uma janela. Corrige o caso em que o Chrome abria e fechava sozinho.
+- **Saída de emergência no Windows:** fechar o Chrome, `Windows+R` → `chrome --disable-extensions`, abrir o perfil e remover a extensão em `chrome://extensions`.

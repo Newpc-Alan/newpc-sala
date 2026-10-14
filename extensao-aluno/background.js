@@ -1,4 +1,4 @@
-// Portal Maestro · extensão do aluno · v0.5.1
+// Portal Maestro · extensão do aluno · v0.5.2
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -20,7 +20,7 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.5.1";
+const VERSAO = "0.5.2";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const PAINEL_SEM_SINAL_MS = 120000; // trava de segurança: sem sinal do painel por 2 min, o bloqueio cai
@@ -323,8 +323,14 @@ chrome.windows.onFocusChanged.addListener(reforcarTela);
 chrome.tabs.onRemoved.addListener(reforcarTela);
 chrome.tabs.onCreated.addListener(async (aba) => {
   const url = await telaObrigatoria();
-  const destino = aba.pendingUrl || aba.url;
-  if (url && destino !== URL_BLOQUEIO && destino !== URL_ENTRADA) {
+  const destino = aba.pendingUrl || aba.url || "";
+  if (!url || destino.startsWith(chrome.runtime.getURL(""))) return;
+  // Nunca fechar a última aba de uma janela: isso fecharia o próprio Chrome.
+  // Nesse caso a aba é levada para a tela obrigatória em vez de ser fechada.
+  const irmas = await chrome.tabs.query({ windowId: aba.windowId });
+  if (irmas.length <= 1) {
+    chrome.tabs.update(aba.id, { url }).catch(() => {});
+  } else {
     chrome.tabs.remove(aba.id).catch(() => {});
   }
 });
@@ -429,11 +435,15 @@ chrome.alarms.create("vigia", { periodInMinutes: 0.5 });
 chrome.alarms.onAlarm.addListener((a) => {
   if (a.name === "vigia") ciclo(); // religa o ciclo se o Chrome tiver hibernado o service worker
 });
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
+  // O bloqueio nunca sobrevive a um reinício do Chrome: ele só volta se o painel
+  // do professor confirmar (em até 3 s, pelo ciclo). Evita aluno preso com estado antigo.
+  await chrome.storage.local.set({ bloqueado: false });
   ciclo();
   abrirEntradaAoIniciar();
 });
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
+  await chrome.storage.local.set({ bloqueado: false });
   ciclo();
   abrirEntradaAoIniciar();
 });
