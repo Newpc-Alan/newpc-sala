@@ -1,4 +1,4 @@
-// NEWPC Sala · extensão do aluno · v0.2.1
+// NEWPC Sala · extensão do aluno · v0.3.0
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -9,12 +9,18 @@
 //   aulas/{codigo}/controle/comando          último comando para todos  {id, tipo, url}
 //   aulas/{codigo}/controle/comandos/{id}    último comando para um aluno
 //   aulas/{codigo}/alunos/{id}               presença que o aluno envia
+//
+// Política da escola (Google Admin Console → Apps e extensões → esta extensão → Política):
+//   { "entradaObrigatoria": { "Value": true } }
+//   true  → o aluno só usa o Chrome depois de entrar numa aula (tela de entrada travada)
+//   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.2.1";
+const VERSAO = "0.3.0";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");
+const URL_ENTRADA = chrome.runtime.getURL("entrar.html");
 
 let cicloRodando = false;
 
@@ -26,6 +32,15 @@ function esperar(ms) {
 
 async function estado() {
   return chrome.storage.local.get(["deviceId", "aula", "nome", "bloqueado", "executados"]);
+}
+
+async function entradaObrigatoria() {
+  try {
+    const p = await chrome.storage.managed.get("entradaObrigatoria");
+    return p.entradaObrigatoria === true;
+  } catch (e) {
+    return false; // sem política da escola (instalação manual)
+  }
 }
 
 async function obterDeviceId() {
@@ -122,48 +137,68 @@ async function verificarControle() {
 async function aplicarBloqueio(ligar) {
   const st = await estado();
   if (ligar !== !!st.bloqueado) await chrome.storage.local.set({ bloqueado: ligar });
-  if (ligar) await garantirTelaBloqueio();
-  else if (st.bloqueado) await fecharTelaBloqueio();
+  if (ligar) await garantirTela(URL_BLOQUEIO, true);
+  else if (st.bloqueado) await fecharTela(URL_BLOQUEIO);
 }
 
-async function garantirTelaBloqueio() {
-  const abas = await chrome.tabs.query({ url: URL_BLOQUEIO });
+// ---------- telas da extensão (bloqueio e entrada) ----------
+
+// Abre a tela (ou traz para frente). "travada" = janela própria em tela cheia.
+async function garantirTela(url, travada) {
+  const abas = await chrome.tabs.query({ url });
   if (abas.length) {
     const aba = abas[0];
     await chrome.tabs.update(aba.id, { active: true });
-    await chrome.windows.update(aba.windowId, { focused: true, state: "fullscreen" });
-    // fecha cópias extras
+    await chrome.windows.update(aba.windowId, travada ? { focused: true, state: "fullscreen" } : { focused: true });
     for (const extra of abas.slice(1)) chrome.tabs.remove(extra.id).catch(() => {});
+  } else if (travada) {
+    await chrome.windows.create({ url, type: "popup", state: "fullscreen", focused: true });
   } else {
-    await chrome.windows.create({ url: URL_BLOQUEIO, type: "popup", state: "fullscreen", focused: true });
+    await chrome.tabs.create({ url, active: true });
   }
 }
 
-async function fecharTelaBloqueio() {
-  const abas = await chrome.tabs.query({ url: URL_BLOQUEIO });
+async function fecharTela(url) {
+  const abas = await chrome.tabs.query({ url });
   for (const a of abas) await chrome.tabs.remove(a.id).catch(() => {});
 }
 
-// Enquanto bloqueado, qualquer tentativa de sair da tela de bloqueio volta para ela.
+// Qual tela deve ficar na frente agora (ou null se nenhuma é obrigatória).
+async function telaObrigatoria() {
+  const st = await estado();
+  if (st.bloqueado) return URL_BLOQUEIO;
+  if (!st.aula && (await entradaObrigatoria())) return URL_ENTRADA;
+  return null;
+}
+
+// Abre a tela de entrada quando o aluno liga o Chromebook / abre o Chrome.
+async function abrirEntradaAoIniciar() {
+  const st = await estado();
+  if (st.aula) return;
+  await garantirTela(URL_ENTRADA, await entradaObrigatoria());
+}
+
+// Enquanto uma tela é obrigatória, qualquer tentativa de sair dela volta para ela.
 let reforcoAgendado = false;
-async function reforcarBloqueio() {
+async function reforcarTela() {
   if (reforcoAgendado) return;
   reforcoAgendado = true;
   await esperar(300);
   reforcoAgendado = false;
-  const st = await estado();
-  if (!st.bloqueado) return;
+  const url = await telaObrigatoria();
+  if (!url) return;
   const [ativa] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (ativa && ativa.url === URL_BLOQUEIO) return;
-  await garantirTelaBloqueio();
+  if (ativa && ativa.url === url) return;
+  await garantirTela(url, true);
 }
 
-chrome.tabs.onActivated.addListener(reforcarBloqueio);
-chrome.windows.onFocusChanged.addListener(reforcarBloqueio);
-chrome.tabs.onRemoved.addListener(reforcarBloqueio);
+chrome.tabs.onActivated.addListener(reforcarTela);
+chrome.windows.onFocusChanged.addListener(reforcarTela);
+chrome.tabs.onRemoved.addListener(reforcarTela);
 chrome.tabs.onCreated.addListener(async (aba) => {
-  const st = await estado();
-  if (st.bloqueado && aba.pendingUrl !== URL_BLOQUEIO && aba.url !== URL_BLOQUEIO) {
+  const url = await telaObrigatoria();
+  const destino = aba.pendingUrl || aba.url;
+  if (url && destino !== URL_BLOQUEIO && destino !== URL_ENTRADA) {
     chrome.tabs.remove(aba.id).catch(() => {});
   }
 });
@@ -196,6 +231,7 @@ async function ciclo() {
 async function entrarNaAula(codigo, nome) {
   codigo = String(codigo || "").replace(/\D/g, "");
   if (codigo.length !== 6) return { ok: false, erro: "O número da aula tem 6 dígitos." };
+  if (!String(nome || "").trim()) return { ok: false, erro: "Digite seu nome." };
 
   let aula;
   try {
@@ -212,7 +248,7 @@ async function entrarNaAula(codigo, nome) {
   if (aula.controle && aula.controle.comando) antigos.push(aula.controle.comando.id);
   if (aula.controle && aula.controle.comandos && aula.controle.comandos[id]) antigos.push(aula.controle.comandos[id].id);
 
-  await chrome.storage.local.set({ aula: codigo, nome: (nome || "").trim().slice(0, 60), executados: antigos, bloqueado: false });
+  await chrome.storage.local.set({ aula: codigo, nome: String(nome).trim().slice(0, 60), executados: antigos, bloqueado: false });
   await enviarPresenca().catch(() => {});
   ciclo();
   return { ok: true, professor: aula.professor || "" };
@@ -225,7 +261,9 @@ async function sairDaAula(avisarServidor) {
     await fb(`aulas/${st.aula}/alunos/${id}`, "DELETE").catch(() => {});
   }
   await chrome.storage.local.set({ aula: null, bloqueado: false, executados: [] });
-  await fecharTelaBloqueio();
+  await fecharTela(URL_BLOQUEIO);
+  // com entrada obrigatória, ao sair/encerrar a tela de entrada volta
+  if (await entradaObrigatoria()) await garantirTela(URL_ENTRADA, true);
 }
 
 chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
@@ -239,7 +277,10 @@ chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
     }
     if (msg.tipo === "status") {
       const st = await estado();
-      return { ok: true, aula: st.aula || null, nome: st.nome || "", bloqueado: !!st.bloqueado, email: await obterEmail() };
+      return {
+        ok: true, aula: st.aula || null, nome: st.nome || "", bloqueado: !!st.bloqueado,
+        email: await obterEmail(), obrigatoria: await entradaObrigatoria()
+      };
     }
     return { ok: false, erro: "Mensagem desconhecida." };
   })().then(responder);
@@ -252,6 +293,15 @@ chrome.alarms.create("vigia", { periodInMinutes: 0.5 });
 chrome.alarms.onAlarm.addListener((a) => {
   if (a.name === "vigia") ciclo(); // religa o ciclo se o Chrome tiver hibernado o service worker
 });
-chrome.runtime.onStartup.addListener(ciclo);
-chrome.runtime.onInstalled.addListener(ciclo);
+chrome.runtime.onStartup.addListener(() => {
+  ciclo();
+  abrirEntradaAoIniciar();
+});
+chrome.runtime.onInstalled.addListener(() => {
+  ciclo();
+  abrirEntradaAoIniciar();
+});
+chrome.storage.onChanged.addListener((_mudancas, area) => {
+  if (area === "managed") reforcarTela(); // escola mudou a política
+});
 ciclo();

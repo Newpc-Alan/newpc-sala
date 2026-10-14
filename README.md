@@ -1,4 +1,4 @@
-# NEWPC Sala · v0.2.1 (teste de bancada)
+# NEWPC Sala · v0.3.0 (teste de bancada)
 
 Professor abre a aula, aluno digita o número, professor gerencia os dispositivos.
 
@@ -43,3 +43,18 @@ Tempo de resposta esperado: comandos em até 3 s.
 - **Bloqueio:** em modo desenvolvedor o aluno consegue desativar a extensão. Na escola ela é instalada à força pelo Google Admin Console (não dá para remover nem desativar).
 - **Só enxerga o Chrome:** em desktop Windows, programas fora do navegador não são controlados.
 - **Hibernação:** se o Chrome adormecer a extensão, ela volta sozinha em até 30 s.
+
+## Tela de entrada ao ligar (v0.3.0)
+
+Ao ligar o Chromebook (ou abrir o Chrome), a extensão abre sozinha a tela **Entrar na aula** (número + nome). Depois de entrar, a tela fecha em 2,5 s.
+
+A escola escolhe o comportamento pelo **Google Admin Console** → Dispositivos → Chrome → Apps e extensões → Usuários e navegadores → NEWPC Sala → **Política para extensões**:
+
+```json
+{ "entradaObrigatoria": { "Value": true } }
+```
+
+| Política | Comportamento |
+|---|---|
+| sem política / `false` | A tela abre ao ligar, mas o aluno pode fechar (padrão, bom para teste) |
+| `true` | Tela em modo travado: o aluno só usa o Chrome depois de entrar numa aula; ao encerrar a aula, a tela volta |
