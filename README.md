@@ -29,7 +29,7 @@ Banco: projeto Firebase **newpc-sala**, instância `newpc-sala-default-rtdb` (us
 
 ## Passo 3 · Testar
 
-1. Abra o painel: https://newpc-alan.github.io/newpc-sala/ (ou o `index.html` local)
+1. Abra o painel: https://sala.portaldoeducador.com.br/ (ou o `index.html` local)
 2. Digite seu nome → **Gerar número da aula**
 3. No dispositivo do aluno: ícone da extensão → número + nome → **Entrar na aula**
 4. Em até 15 s o aluno aparece no painel
