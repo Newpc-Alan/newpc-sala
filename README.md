@@ -1,4 +1,4 @@
-# Portal Maestro · v0.5.0 (teste de bancada)
+# Portal Maestro · v0.5.1 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
@@ -72,3 +72,9 @@ A escola escolhe o comportamento pelo **Google Admin Console** → Dispositivos 
 A janelinha do Maestro é uma janela própria da extensão: **nenhuma permissão nova** foi adicionada. Durante o bloqueio ela some; ao desbloquear, volta.
 
 Dados novos no banco: `aulas/{codigo}/controle/afinacao`, `aulas/{codigo}/controle/compasso`, `aulas/{codigo}/respostas/afinacao/{idPergunta}/{idAluno}` (já cobertos pelas regras atuais).
+
+## Trava de segurança (v0.5.1)
+
+O bloqueio de tela só vale enquanto o painel do professor está vivo. O painel envia um sinal (`controle/professorVivo`) a cada 15 s; se a extensão ficar **mais de 2 minutos sem esse sinal** (aba fechada, sem internet, notebook desligado), ela **libera a tela sozinha**. O painel também avisa antes de fechar quando há alunos bloqueados.
+
+Emergência sem painel: encerrar ou apagar a aula no Firebase (`aulas/{codigo}`) libera todos em até 3 s.

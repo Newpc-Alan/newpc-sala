@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Portal Maestro · Aluno",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Conecta este Chromebook à aula conduzida pelo professor (Portal Maestro · Portal do Educador).",
   "permissions": [
     "storage",

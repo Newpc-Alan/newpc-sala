@@ -1,9 +1,10 @@
-// Portal Maestro · extensão do aluno · v0.5.0
+// Portal Maestro · extensão do aluno · v0.5.1
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
 //   aulas/{codigo}/professor, criadaEm
 //   aulas/{codigo}/controle/encerrada        true quando o professor encerra
+//   aulas/{codigo}/controle/professorVivo    sinal do painel (servidor, ms); sem sinal por 2 min = bloqueio liberado
 //   aulas/{codigo}/controle/bloqueioGeral    true/false para a turma inteira
 //   aulas/{codigo}/controle/bloqueio/{id}    true/false para um aluno (sobrepõe o geral)
 //   aulas/{codigo}/controle/comando          último comando para todos  {id, tipo, url}
@@ -19,9 +20,10 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.5.0";
+const VERSAO = "0.5.1";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
+const PAINEL_SEM_SINAL_MS = 120000; // trava de segurança: sem sinal do painel por 2 min, o bloqueio cai
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");
 const URL_ENTRADA = chrome.runtime.getURL("entrar.html");
 const URL_REGENCIA = chrome.runtime.getURL("regencia.html"); // janela da Afinação e do Compasso
@@ -135,7 +137,25 @@ async function verificarControle() {
 
   // bloqueio individual sobrepõe o geral
   const individual = controle.bloqueio ? controle.bloqueio[id] : undefined;
-  const deveBloquear = typeof individual === "boolean" ? individual : !!controle.bloqueioGeral;
+  let deveBloquear = typeof individual === "boolean" ? individual : !!controle.bloqueioGeral;
+
+  // TRAVA DE SEGURANÇA: o bloqueio só vale enquanto o painel do professor estiver vivo.
+  // Se o painel ficar mais de 2 min sem sinal (aba fechada, sem internet, notebook desligado),
+  // a tela do aluno é liberada sozinha. Ninguém fica preso.
+  if (deveBloquear) {
+    const offset = (await chrome.storage.local.get("offset")).offset || 0;
+    const agoraServidor = Date.now() + offset;
+    const vivo = typeof controle.professorVivo === "number" ? controle.professorVivo : 0;
+    if (agoraServidor - vivo > PAINEL_SEM_SINAL_MS) {
+      if (!(await chrome.storage.local.get("avisoTrava")).avisoTrava) {
+        console.warn("[Portal Maestro] Painel do professor sem sinal: bloqueio liberado por segurança.");
+        await chrome.storage.local.set({ avisoTrava: true });
+      }
+      deveBloquear = false;
+    } else {
+      await chrome.storage.local.set({ avisoTrava: false });
+    }
+  }
   await aplicarBloqueio(deveBloquear);
 
   // comandos: geral e individual, na ordem em que foram criados

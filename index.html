@@ -413,8 +413,22 @@
 
   // ---------- leitura periódica ----------
 
+  // sinal de vida do painel: sem ele por 2 min, a extensão libera os bloqueios sozinha
+  async function sinalDeVida() {
+    if (!st.aula) return;
+    st.ultimoSinal = Date.now();
+    await fb(`aulas/${st.aula}/controle/professorVivo`, "PUT", { ".sv": "timestamp" });
+  }
+
+  function haBloqueados() {
+    if (!st.aula) return false;
+    if (st.controle.bloqueioGeral) return true;
+    return Object.values(st.controle.bloqueio || {}).some((v) => v === true);
+  }
+
   async function atualizar() {
     if (!st.aula) return;
+    if (Date.now() - (st.ultimoSinal || 0) > 15000) sinalDeVida().catch(() => {});
     try {
       const aula = await fb(`aulas/${st.aula}`);
       $("conexao").textContent = "Conectado";
@@ -661,6 +675,7 @@
     },
 
     async bloquearTodos() {
+      await sinalDeVida();
       await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: true, bloqueio: null });
       toast("Bloqueando todas as telas...");
       atualizar();
@@ -673,6 +688,7 @@
     },
 
     async bloquearUm(el) {
+      await sinalDeVida();
       await fb(`aulas/${st.aula}/controle/bloqueio/${el.dataset.id}`, "PUT", true);
       toast(`Bloqueando ${nomeDe(el.dataset.id)}...`);
       atualizar();
@@ -828,6 +844,11 @@
   });
 
   $("acervoBusca").addEventListener("input", desenharAcervo);
+
+  // aviso ao fechar o painel com alunos bloqueados
+  window.addEventListener("beforeunload", (e) => {
+    if (haBloqueados()) { e.preventDefault(); e.returnValue = ""; }
+  });
 
   $("codigoRetomar").addEventListener("input", (e) => {
     e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
