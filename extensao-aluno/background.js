@@ -1,4 +1,4 @@
-// Portal Maestro · extensão do aluno · v0.4.1
+// Portal Maestro · extensão do aluno · v0.4.2
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -16,7 +16,7 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.4.1";
+const VERSAO = "0.4.2";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");

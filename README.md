@@ -1,4 +1,4 @@
-# Portal Maestro · v0.4.1 (teste de bancada)
+# Portal Maestro · v0.4.2 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
