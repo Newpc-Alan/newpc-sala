@@ -6,15 +6,16 @@
 <style>
   html, body { margin:0; height:100%; }
   body { display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center;
-         background:radial-gradient(circle at 50% 40%, #16406b 0%, #0f2c4a 60%, #0a1f35 100%);
+         background:radial-gradient(circle at 50% 40%, #16406b 0%, #0f2c4a 60%, #05091a 100%);
          color:#fff; font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif; user-select:none; cursor:default; }
-  .icone { width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,#37B1DA,#B6D752); display:flex; align-items:center; justify-content:center;
-           box-shadow:0 0 0 14px rgba(55,177,218,.22); margin-bottom:36px; }
+  .icone { width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,#3ea8ce,#a6c544); display:flex; align-items:center; justify-content:center;
+           box-shadow:0 0 0 14px rgba(62,168,206,.22); margin-bottom:36px; }
   .icone svg { width:56px; height:56px; }
   h1 { font-size:clamp(28px,5vw,52px); margin:0 0 12px; font-weight:700; }
   p { font-size:clamp(16px,2.2vw,22px); margin:0; opacity:.85; }
   #nome { margin-top:28px; font-size:18px; opacity:.7; }
-  .marca { position:fixed; bottom:24px; font-size:13px; letter-spacing:1px; opacity:.5; }
+  .marca { position:fixed; bottom:20px; display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:1px; opacity:.75; }
+  .marca img { width:34px; height:34px; }
 </style>
 </head>
 <body>
@@ -26,7 +27,7 @@
   <h1>Atenção ao professor</h1>
   <p>Sua tela foi pausada. Ela volta assim que o professor liberar.</p>
   <div id="nome"></div>
-  <div class="marca">PORTAL MAESTRO · PORTAL DO EDUCADOR</div>
+  <div class="marca"><img src="icons/pde-96.png" alt="">PORTAL MAESTRO · PORTAL DO EDUCADOR</div>
 <script src="bloqueio.js"></script>
 </body>
 </html>

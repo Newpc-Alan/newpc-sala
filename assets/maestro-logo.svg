@@ -1,20 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="mf" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#16406b"/>
-      <stop offset="1" stop-color="#0a1f35"/>
+      <stop offset="0" stop-color="#132a40"/>
+      <stop offset="1" stop-color="#05091a"/>
+    </linearGradient>
+    <linearGradient id="mb" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#184489"/>
+      <stop offset="1" stop-color="#3ea8ce"/>
     </linearGradient>
     <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#37B1DA"/>
-      <stop offset="1" stop-color="#B6D752"/>
+      <stop offset="0" stop-color="#b4ce68"/>
+      <stop offset="1" stop-color="#7fb535"/>
     </linearGradient>
+    <radialGradient id="mbrilho">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#cfefff"/>
+      <stop offset="1" stop-color="#3ea8ce" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#mf)"/>
-  <!-- ondas: o comando do maestro chegando à turma -->
-  <path d="M36.6 20.3 A10 10 0 0 1 43.7 32.6" fill="none" stroke="url(#mg)" stroke-width="4.6" stroke-linecap="round"/>
-  <path d="M38.7 12.6 A18 18 0 0 1 51.4 34.7" fill="none" stroke="url(#mg)" stroke-width="4.6" stroke-linecap="round"/>
-  <!-- batuta -->
-  <path d="M15 49 L 33 31" stroke="#ffffff" stroke-width="4.4" stroke-linecap="round"/>
-  <circle cx="15" cy="49" r="5.4" fill="#ffffff"/>
-  <circle cx="34" cy="30" r="3.6" fill="#B6D752"/>
+  <rect x="1.2" y="1.2" width="61.6" height="61.6" rx="14" fill="none" stroke="#3ea8ce" stroke-opacity=".45" stroke-width="1.4"/>
+  <!-- ondas em trilha de circuito: o comando chegando à turma -->
+  <path d="M36.6 20.3 A10 10 0 0 1 43.7 32.6" fill="none" stroke="url(#mg)" stroke-width="4.2" stroke-linecap="round"/>
+  <path d="M38.7 12.6 A18 18 0 0 1 51.4 34.7" fill="none" stroke="url(#mg)" stroke-width="4.2" stroke-linecap="round"/>
+  <circle cx="44.6" cy="35.6" r="2.6" fill="#05091a" stroke="#7fb535" stroke-width="1.8"/>
+  <circle cx="52.6" cy="38.2" r="2.6" fill="#05091a" stroke="#7fb535" stroke-width="1.8"/>
+  <!-- batuta no degradê do P -->
+  <path d="M16 48 L 33 31" stroke="url(#mb)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="14.6" cy="49.4" r="4.6" fill="#05091a" stroke="#3ea8ce" stroke-width="2.6"/>
+  <circle cx="34" cy="30" r="7" fill="url(#mbrilho)"/>
+  <circle cx="34" cy="30" r="2.6" fill="#ffffff"/>
 </svg>
