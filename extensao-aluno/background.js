@@ -1,4 +1,4 @@
-// Portal Maestro · extensão do aluno · v0.4.2
+// Portal Maestro · extensão do aluno · v0.5.0
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -9,6 +9,9 @@
 //   aulas/{codigo}/controle/comando          último comando para todos  {id, tipo, url}
 //   aulas/{codigo}/controle/comandos/{id}    último comando para um aluno
 //   aulas/{codigo}/alunos/{id}               presença que o aluno envia
+//   aulas/{codigo}/controle/afinacao         {id, pergunta, ativa}            termômetro de compreensão
+//   aulas/{codigo}/controle/compasso         {id, titulo, inicio, duracaoMs, ativo}   cronômetro da atividade
+//   aulas/{codigo}/respostas/afinacao/{idPergunta}/{id}   {valor, nome, ts}
 //
 // Política da escola (Google Admin Console → Apps e extensões → esta extensão → Política):
 //   { "entradaObrigatoria": { "Value": true } }
@@ -16,11 +19,12 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.4.2";
+const VERSAO = "0.5.0";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");
 const URL_ENTRADA = chrome.runtime.getURL("entrar.html");
+const URL_REGENCIA = chrome.runtime.getURL("regencia.html"); // janela da Afinação e do Compasso
 
 let cicloRodando = false;
 
@@ -80,7 +84,8 @@ async function enviarPresenca() {
   if (!st.aula) return;
   const id = await obterDeviceId();
   const email = await obterEmail();
-  await fb(`aulas/${st.aula}/alunos/${id}`, "PATCH", {
+  const antes = Date.now();
+  const r = await fb(`aulas/${st.aula}/alunos/${id}`, "PATCH", {
     nome: st.nome || email || "Aluno sem nome",
     email: email,
     bloqueado: !!st.bloqueado,
@@ -88,6 +93,11 @@ async function enviarPresenca() {
     versao: VERSAO,
     ultimaAtividade: { ".sv": "timestamp" }
   });
+  // diferença entre o relógio deste Chromebook e o do servidor (para o Compasso ficar sincronizado)
+  if (r && typeof r.ultimaAtividade === "number") {
+    const meio = Math.round((antes + Date.now()) / 2);
+    await chrome.storage.local.set({ offset: r.ultimaAtividade - meio });
+  }
 }
 
 // ---------- comandos e bloqueio ----------
@@ -132,6 +142,102 @@ async function verificarControle() {
   const meu = controle.comandos ? controle.comandos[id] : null;
   const fila = [controle.comando, meu].filter((c) => c && c.id).sort((a, b) => (a.ts || 0) - (b.ts || 0));
   for (const c of fila) await executarComando(c);
+
+  try {
+    await atualizarRegencia(controle, deveBloquear);
+  } catch (e) {
+    console.warn("[Portal Maestro] Falha na Afinação/Compasso:", e.message);
+  }
+}
+
+// ---------- Afinação e Compasso (janela própria do Maestro, sem permissões extras) ----------
+
+async function atualizarRegencia(controle, bloqueado) {
+  const st = await chrome.storage.local.get(["afinacaoRespondida", "regencia", "regenciaVista", "offset"]);
+  const offset = st.offset || 0;
+  let afinacao = null;
+  let compasso = null;
+
+  const a = controle.afinacao;
+  if (a && a.ativa && a.id && a.id !== st.afinacaoRespondida) {
+    afinacao = { id: a.id, pergunta: String(a.pergunta || "Entenderam?").slice(0, 140) };
+  }
+  const c = controle.compasso;
+  if (c && c.ativo && c.id && typeof c.inicio === "number" && c.duracaoMs > 0) {
+    const fimLocal = c.inicio + c.duracaoMs - offset;
+    if (Date.now() < fimLocal + 8000) compasso = { id: c.id, titulo: String(c.titulo || "Atividade").slice(0, 60), fimLocal };
+  }
+
+  const novo = { afinacao, compasso };
+  if (JSON.stringify(novo) !== JSON.stringify(st.regencia || { afinacao: null, compasso: null })) {
+    await chrome.storage.local.set({ regencia: novo });
+  }
+  await atualizarBadge(compasso);
+
+  if (bloqueado || (!afinacao && !compasso)) {
+    await fecharTela(URL_REGENCIA);
+    return;
+  }
+
+  // traz a janela para frente só quando chega uma novidade (pergunta ou cronômetro novo)
+  const vistos = st.regenciaVista || [];
+  const ids = [afinacao && afinacao.id, compasso && compasso.id].filter(Boolean);
+  const novidade = ids.some((x) => !vistos.includes(x));
+  await abrirJanelaRegencia(novidade);
+  if (novidade) await chrome.storage.local.set({ regenciaVista: vistos.concat(ids).slice(-20) });
+}
+
+async function abrirJanelaRegencia(trazerParaFrente) {
+  const abas = await chrome.tabs.query({ url: URL_REGENCIA });
+  if (abas.length) {
+    if (trazerParaFrente) await chrome.windows.update(abas[0].windowId, { focused: true, drawAttention: true });
+    return;
+  }
+  const opcoes = { url: URL_REGENCIA, type: "popup", width: 380, height: 340, focused: true };
+  try {
+    const w = await chrome.windows.getLastFocused();
+    if (w && w.width > 500 && w.height > 400) {
+      opcoes.left = Math.max(0, (w.left || 0) + w.width - 400);
+      opcoes.top = Math.max(0, (w.top || 0) + 80);
+    }
+  } catch (e) { /* posição padrão */ }
+  try {
+    await chrome.windows.create(opcoes);
+  } catch (e) {
+    // o Chrome recusa posições fora da tela visível: abre na posição padrão
+    delete opcoes.left;
+    delete opcoes.top;
+    await chrome.windows.create(opcoes);
+  }
+}
+
+async function atualizarBadge(compasso) {
+  if (!compasso) {
+    await chrome.action.setBadgeText({ text: "" });
+    return;
+  }
+  const resta = compasso.fimLocal - Date.now();
+  const s = Math.ceil(resta / 1000);
+  const texto = resta <= 0 ? "FIM" : s >= 60 ? Math.ceil(s / 60) + "m" : s + "s";
+  await chrome.action.setBadgeBackgroundColor({ color: resta <= 0 ? "#c0392b" : "#184489" });
+  await chrome.action.setBadgeText({ text: texto });
+}
+
+async function responderAfinacao(idPergunta, valor) {
+  if (!["verde", "amarelo", "vermelho"].includes(valor)) return { ok: false, erro: "Resposta inválida." };
+  const st = await estado();
+  if (!st.aula) return { ok: false, erro: "Você não está numa aula." };
+  const id = await obterDeviceId();
+  try {
+    await fb(`aulas/${st.aula}/respostas/afinacao/${idPergunta}/${id}`, "PUT", {
+      valor, nome: st.nome || "", ts: { ".sv": "timestamp" }
+    });
+  } catch (e) {
+    return { ok: false, erro: "Sem conexão. Tente de novo." };
+  }
+  const reg = (await chrome.storage.local.get("regencia")).regencia || {};
+  await chrome.storage.local.set({ afinacaoRespondida: idPergunta, regencia: { afinacao: null, compasso: reg.compasso || null } });
+  return { ok: true };
 }
 
 async function aplicarBloqueio(ligar) {
@@ -212,11 +318,18 @@ async function ciclo() {
   try {
     // cada volta chama a API de storage, o que mantém o service worker acordado durante a aula
     while ((await estado()).aula) {
+      // comandos e presença em blocos separados: uma falha num não derruba o outro
       try {
         await verificarControle();
-        if (volta % HEARTBEAT_A_CADA === 0) await enviarPresenca();
       } catch (e) {
-        console.warn("[Portal Maestro] Falha no ciclo:", e.message);
+        console.warn("[Portal Maestro] Falha nos comandos:", e.message);
+      }
+      if (volta % HEARTBEAT_A_CADA === 0) {
+        try {
+          await enviarPresenca();
+        } catch (e) {
+          console.warn("[Portal Maestro] Falha na presença:", e.message);
+        }
       }
       volta++;
       await esperar(INTERVALO_MS);
@@ -260,8 +373,10 @@ async function sairDaAula(avisarServidor) {
   if (avisarServidor && st.aula) {
     await fb(`aulas/${st.aula}/alunos/${id}`, "DELETE").catch(() => {});
   }
-  await chrome.storage.local.set({ aula: null, bloqueado: false, executados: [] });
+  await chrome.storage.local.set({ aula: null, bloqueado: false, executados: [], regencia: { afinacao: null, compasso: null } });
   await fecharTela(URL_BLOQUEIO);
+  await fecharTela(URL_REGENCIA);
+  await chrome.action.setBadgeText({ text: "" });
   // com entrada obrigatória, ao sair/encerrar a tela de entrada volta
   if (await entradaObrigatoria()) await garantirTela(URL_ENTRADA, true);
 }
@@ -269,6 +384,7 @@ async function sairDaAula(avisarServidor) {
 chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
   (async () => {
     if (msg.tipo === "entrar") return entrarNaAula(msg.aula, msg.nome);
+    if (msg.tipo === "afinacao") return responderAfinacao(msg.id, msg.valor);
     if (msg.tipo === "sair") {
       const st = await estado();
       if (st.bloqueado) return { ok: false, erro: "Tela bloqueada pelo professor." };

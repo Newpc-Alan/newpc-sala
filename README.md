@@ -1,4 +1,4 @@
-# Portal Maestro · v0.4.2 (teste de bancada)
+# Portal Maestro · v0.5.0 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
@@ -60,3 +60,15 @@ A escola escolhe o comportamento pelo **Google Admin Console** → Dispositivos 
 |---|---|
 | sem política / `false` | A tela abre ao ligar, mas o aluno pode fechar (padrão, bom para teste) |
 | `true` | Tela em modo travado: o aluno só usa o Chrome depois de entrar numa aula; ao encerrar a aula, a tela volta |
+
+## Fase 1 · recursos de aula (v0.5.0)
+
+| Recurso | No painel | No Chromebook do aluno |
+|---|---|---|
+| **Acervo na batuta** | Botão Acervo: catálogo do Portal 360, jogos, Portal do Aluno e ferramentas, com busca, categorias e "Meus links" (salvos no navegador do professor). Envia para a turma toda ou um aluno | Conteúdo abre sozinho em nova aba |
+| **Afinação** | Botão Afinação: pergunta + termômetro (entendeu / mais ou menos / não entendeu / sem resposta) e etiqueta no card de cada aluno | Janelinha do Maestro com três botões; só o professor vê as respostas |
+| **Compasso** | Botão Compasso: atividade + tempo (1 a 20 min), contagem no painel, botão Parar | Janelinha com cronômetro grande, contagem também no ícone da extensão; aviso sonoro no fim |
+
+A janelinha do Maestro é uma janela própria da extensão: **nenhuma permissão nova** foi adicionada. Durante o bloqueio ela some; ao desbloquear, volta.
+
+Dados novos no banco: `aulas/{codigo}/controle/afinacao`, `aulas/{codigo}/controle/compasso`, `aulas/{codigo}/respostas/afinacao/{idPergunta}/{idAluno}` (já cobertos pelas regras atuais).

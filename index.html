@@ -89,6 +89,45 @@
   .conexao { font-size:12px; }
   .conexao.ruim { color:#ffd0cc; }
 
+  /* ---- regência: Afinação e Compasso ---- */
+  .regencia { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-bottom:16px; }
+  .reg-card { background:var(--branco); border:1px solid var(--borda); border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
+  .reg-card .reg-topo { display:flex; align-items:center; gap:10px; }
+  .reg-card .reg-rotulo { font-size:11px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:#184489; }
+  .reg-card .reg-titulo { font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .termometro { display:flex; height:14px; border-radius:8px; overflow:hidden; background:#e6ebf0; }
+  .termometro i { display:block; height:100%; }
+  .t-verde { background:var(--lima); } .t-amarelo { background:#e0a321; } .t-vermelho { background:#e5675a; }
+  .legenda { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--cinza); }
+  .legenda b { color:var(--azul); font-size:16px; margin-right:3px; }
+  .legenda .bolinha { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+  .reg-tempo { font-size:40px; font-weight:800; letter-spacing:1px; font-variant-numeric:tabular-nums; color:var(--azul); line-height:1; }
+  .reg-tempo.fim { color:var(--vermelho); }
+  .reg-barra { height:8px; border-radius:6px; background:#e6ebf0; overflow:hidden; }
+  .reg-barra i { display:block; height:100%; background:linear-gradient(90deg,var(--ciano),var(--lima)); }
+  .tag.afv { background:#eef5dc; color:#557a1f; } .tag.afa { background:#fff3d6; color:#8a6100; } .tag.afr { background:var(--vermelho-claro); color:var(--vermelho); }
+
+  /* ---- acervo ---- */
+  .modal.largo { max-width:860px; max-height:88vh; display:flex; flex-direction:column; }
+  .acervo-topo { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 10px; }
+  .acervo-topo input { flex:1; min-width:200px; }
+  .acervo-topo select { padding:10px 12px; border:1px solid var(--borda); border-radius:9px; font:inherit; color:var(--azul); background:#fff; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .chip { border:1px solid var(--borda); background:#fff; color:var(--azul); border-radius:20px; padding:6px 12px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+  .chip.ativo { background:var(--azul); color:#fff; border-color:var(--azul); }
+  .acervo-lista { overflow:auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px; padding:2px; }
+  .item { border:1px solid var(--borda); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px; background:#fff; }
+  .item .item-cab { display:flex; gap:10px; align-items:center; }
+  .item .sigla { width:38px; height:38px; flex:none; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:14px; }
+  .item b { line-height:1.2; }
+  .item small { color:var(--cinza); font-size:12px; }
+  .item p { margin:0; font-size:13px; color:var(--cinza); flex:1; }
+  .item .item-botoes { display:flex; gap:6px; }
+  .item .item-botoes .btn { flex:1; }
+  .meus-links { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .meus-links input { flex:1; min-width:160px; }
+  .duracoes { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+
   @media (max-width:720px) {
     .topo-aula { grid-template-columns:1fr; }
     header .dir { display:none; }
@@ -136,12 +175,35 @@
           <div class="contador"><b id="cOff">0</b>desconectados</div>
         </div>
         <div class="acoes">
-          <button class="btn" data-action="abrirModalLink" data-alvo="todos">Enviar link para todos</button>
+          <button class="btn" data-action="abrirAcervo">Acervo</button>
+          <button class="btn sec" data-action="abrirAfinacao">Afinação</button>
+          <button class="btn sec" data-action="abrirCompasso">Compasso</button>
+          <button class="btn sec" data-action="abrirModalLink" data-alvo="todos">Link</button>
           <button class="btn alerta" data-action="bloquearTodos">Bloquear todos</button>
           <button class="btn sec" data-action="desbloquearTodos">Desbloquear todos</button>
           <button class="btn sec" data-action="limparDesconectados">Limpar desconectados</button>
           <button class="btn sec" data-action="encerrarAula" style="margin-left:auto">Encerrar aula</button>
         </div>
+      </div>
+    </div>
+    <div class="regencia" id="regencia">
+      <div class="reg-card" id="cardAfinacao" hidden>
+        <div class="reg-topo">
+          <span class="reg-rotulo">Afinação</span>
+          <span class="reg-titulo" id="afPergunta"></span>
+          <button class="btn sec peq" data-action="encerrarAfinacao">Encerrar</button>
+        </div>
+        <div class="termometro" id="afTermometro"></div>
+        <div class="legenda" id="afLegenda"></div>
+      </div>
+      <div class="reg-card" id="cardCompasso" hidden>
+        <div class="reg-topo">
+          <span class="reg-rotulo">Compasso</span>
+          <span class="reg-titulo" id="cpTitulo"></span>
+          <button class="btn sec peq" data-action="pararCompasso">Parar</button>
+        </div>
+        <div class="reg-tempo" id="cpTempo">00:00</div>
+        <div class="reg-barra"><i id="cpBarra"></i></div>
       </div>
     </div>
     <div class="grade" id="grade"></div>
@@ -151,6 +213,64 @@
     </div>
   </section>
 </main>
+
+<!-- MODAL ACERVO -->
+<div class="modal-fundo" id="modalAcervo" hidden>
+  <div class="modal largo">
+    <h3>Acervo na batuta</h3>
+    <p>Escolha o conteúdo e envie: abre sozinho nos Chromebooks em até 3 segundos.</p>
+    <div class="acervo-topo">
+      <input type="text" id="acervoBusca" placeholder="Buscar no acervo">
+      <select id="acervoAlvo" aria-label="Enviar para"></select>
+    </div>
+    <div class="chips" id="acervoChips"></div>
+    <div class="acervo-lista" id="acervoLista"></div>
+    <div class="meus-links">
+      <input type="text" id="meuNome" placeholder="Nome do link (ex.: Vídeo da aula)" maxlength="60">
+      <input type="url" id="meuUrl" placeholder="https://">
+      <button class="btn sec" data-action="addMeuLink">Salvar em Meus links</button>
+    </div>
+    <div class="msg erro" id="msgAcervo"></div>
+    <div class="rodape"><button class="btn sec" data-action="fecharModal">Fechar</button></div>
+  </div>
+</div>
+
+<!-- MODAL AFINAÇÃO -->
+<div class="modal-fundo" id="modalAfinacao" hidden>
+  <div class="modal">
+    <h3>Afinação</h3>
+    <p>Cada aluno responde Entendi, Mais ou menos ou Não entendi. Só você vê as respostas.</p>
+    <label for="afTexto">Pergunta</label>
+    <input type="text" id="afTexto" maxlength="140" value="Entenderam a explicação?">
+    <div class="rodape">
+      <button class="btn sec" data-action="fecharModal">Cancelar</button>
+      <button class="btn" data-action="lancarAfinacao">Perguntar à turma</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPASSO -->
+<div class="modal-fundo" id="modalCompasso" hidden>
+  <div class="modal">
+    <h3>Compasso</h3>
+    <p>Cronômetro na tela de todos. Ao terminar, toca um aviso.</p>
+    <label for="cpTexto">Atividade</label>
+    <input type="text" id="cpTexto" maxlength="60" value="Atividade em dupla">
+    <label>Tempo</label>
+    <div class="duracoes" id="cpDuracoes">
+      <button class="chip" data-action="escolherMinutos" data-min="1">1 min</button>
+      <button class="chip" data-action="escolherMinutos" data-min="3">3 min</button>
+      <button class="chip ativo" data-action="escolherMinutos" data-min="5">5 min</button>
+      <button class="chip" data-action="escolherMinutos" data-min="10">10 min</button>
+      <button class="chip" data-action="escolherMinutos" data-min="15">15 min</button>
+      <button class="chip" data-action="escolherMinutos" data-min="20">20 min</button>
+    </div>
+    <div class="rodape">
+      <button class="btn sec" data-action="fecharModal">Cancelar</button>
+      <button class="btn" data-action="iniciarCompasso">Iniciar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL LINK -->
 <div class="modal-fundo" id="modalLink" hidden>
@@ -191,7 +311,21 @@
   const CHAVE_LOCAL = "portalMaestro.professor";
 
   const $ = (id) => document.getElementById(id);
-  const st = { aula: null, professor: "", alunos: {}, controle: {}, offset: 0, timer: null, linkAlvo: "todos", acaoPendente: null };
+  const CHAVE_MEUS = "portalMaestro.meusLinks";
+  const P360 = "https://portal360.portaldoeducador.com.br/apps/";
+  // Acervo inicial: conteúdos publicados do ecossistema Portal do Educador
+  const ACERVO = [
+    { cat: "Portal 360", sigla: "SS", cor: "#184489", nome: "Sistema Solar", desc: "Planetas, órbitas, fases da Lua, estações e eclipses em 3D.", url: P360 + "sistema-solar/" },
+    { cat: "Portal 360", sigla: "DNA", cor: "#184489", nome: "DNA Imersivo", desc: "A dupla hélice por dentro: bases, ligações e o jogo complete a fita.", url: P360 + "dna/" },
+    { cat: "Portal 360", sigla: "CH", cor: "#184489", nome: "Corpo Humano Imersivo", desc: "Oito sistemas do corpo com missões e fichas narradas.", url: P360 + "corpo-humano/" },
+    { cat: "Portal 360", sigla: "TE", cor: "#184489", nome: "Terra por Dentro", desc: "Camadas, placas tectônicas, vulcões e rochas.", url: P360 + "terra/" },
+    { cat: "Portal 360", sigla: "360", cor: "#16406b", nome: "Catálogo Portal 360", desc: "Todas as experiências imersivas do Portal.", url: "https://portal360.portaldoeducador.com.br/" },
+    { cat: "Jogos", sigla: "CC", cor: "#557a1f", nome: "Copa do Conhecimento", desc: "Quiz gamificado do 1º ao 5º ano.", url: "https://jogos.portaldoeducador.com.br/" },
+    { cat: "Portal do Educador", sigla: "PA", cor: "#3ea8ce", nome: "Portal do Aluno", desc: "Conteúdos dos botões mestres na versão do estudante.", url: "https://www.portaldoeducador-aluno.com.br/" },
+    { cat: "Portal do Educador", sigla: "L3D", cor: "#3ea8ce", nome: "Laboratório Imersivo 3D", desc: "Apps 3D do Portal do Educador.", url: "https://www.portaldoeducador.com.br/laboratorio-imersivo-3d/" },
+    { cat: "Ferramentas", sigla: "LI", cor: "#0F2C4A", nome: "Lousa Interativa", desc: "Quadro digital para atividade de desenho ou registro.", url: "https://lousa.portaldoeducador.com.br/" }
+  ];
+  const st = { aula: null, professor: "", alunos: {}, controle: {}, offset: 0, timer: null, linkAlvo: "todos", acaoPendente: null, respostas: {}, acervoCat: "Todos", cpMin: 5 };
 
   // ---------- utilidades ----------
 
@@ -292,7 +426,9 @@
       }
       st.alunos = aula.alunos || {};
       st.controle = aula.controle || {};
+      st.respostas = aula.respostas || {};
       desenhar();
+      desenharRegencia();
     } catch (e) {
       $("conexao").textContent = "Sem conexão";
       $("conexao").classList.add("ruim");
@@ -321,7 +457,8 @@
       const tags = [
         a.online ? '<span class="tag">Online</span>' : '<span class="tag off">Desconectado</span>',
         a.bloqueado ? '<span class="tag bloq">Bloqueado</span>' : "",
-        pendente ? '<span class="tag off">Aplicando...</span>' : ""
+        pendente ? '<span class="tag off">Aplicando...</span>' : "",
+        tagAfinacao(a.id)
       ].join("");
       return `
         <div class="aluno ${a.online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""}">
@@ -343,6 +480,106 @@
     $("cOnline").textContent = on;
     $("cBloq").textContent = bl;
     $("cOff").textContent = off;
+  }
+
+  // ---------- regência: Afinação e Compasso ----------
+
+  function respostasAfinacaoAtual() {
+    const af = st.controle.afinacao;
+    if (!af || !af.id) return null;
+    return (st.respostas.afinacao && st.respostas.afinacao[af.id]) || {};
+  }
+
+  function tagAfinacao(id) {
+    const r = respostasAfinacaoAtual();
+    if (!r || !r[id]) return "";
+    const v = r[id].valor;
+    if (v === "verde") return '<span class="tag afv">Entendeu</span>';
+    if (v === "amarelo") return '<span class="tag afa">Mais ou menos</span>';
+    if (v === "vermelho") return '<span class="tag afr">Não entendeu</span>';
+    return "";
+  }
+
+  function desenharRegencia() {
+    const af = st.controle.afinacao;
+    const cardAf = $("cardAfinacao");
+    if (af && af.ativa) {
+      const r = respostasAfinacaoAtual() || {};
+      const agora = agoraServidor();
+      const online = Object.entries(st.alunos).filter(([, a]) => agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS).map(([id]) => id);
+      const conta = { verde: 0, amarelo: 0, vermelho: 0 };
+      Object.values(r).forEach((x) => { if (conta[x.valor] !== undefined) conta[x.valor]++; });
+      const responderam = conta.verde + conta.amarelo + conta.vermelho;
+      const semResposta = Math.max(0, online.filter((id) => !r[id]).length);
+      const total = Math.max(1, responderam + semResposta);
+      $("afPergunta").textContent = af.pergunta || "Entenderam?";
+      $("afTermometro").innerHTML = ["verde", "amarelo", "vermelho"]
+        .map((k) => `<i class="t-${k}" style="width:${(conta[k] / total) * 100}%"></i>`).join("");
+      $("afLegenda").innerHTML =
+        `<span><span class="bolinha t-verde"></span><b>${conta.verde}</b>entendeu</span>` +
+        `<span><span class="bolinha t-amarelo"></span><b>${conta.amarelo}</b>mais ou menos</span>` +
+        `<span><span class="bolinha t-vermelho"></span><b>${conta.vermelho}</b>não entendeu</span>` +
+        `<span><b>${semResposta}</b>sem resposta</span>`;
+      cardAf.hidden = false;
+    } else {
+      cardAf.hidden = true;
+    }
+    tickCompasso();
+  }
+
+  function tickCompasso() {
+    const c = st.controle.compasso;
+    const card = $("cardCompasso");
+    if (!c || !c.ativo || typeof c.inicio !== "number") { card.hidden = true; return; }
+    const resta = c.inicio + c.duracaoMs - agoraServidor();
+    card.hidden = false;
+    $("cpTitulo").textContent = c.titulo || "Atividade";
+    const s = Math.max(0, Math.ceil(resta / 1000));
+    $("cpTempo").textContent = resta > 0 ? String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0") : "TEMPO!";
+    $("cpTempo").classList.toggle("fim", resta <= 0);
+    $("cpBarra").style.width = Math.max(0, Math.min(100, (resta / c.duracaoMs) * 100)) + "%";
+  }
+  setInterval(tickCompasso, 500);
+
+  // ---------- acervo ----------
+
+  function meusLinks() {
+    try { return JSON.parse(localStorage.getItem(CHAVE_MEUS) || "[]"); } catch (e) { return []; }
+  }
+  function salvarMeusLinks(lista) {
+    try { localStorage.setItem(CHAVE_MEUS, JSON.stringify(lista)); } catch (e) { /* sem storage */ }
+  }
+
+  function itensAcervo() {
+    const meus = meusLinks().map((m, i) => ({ cat: "Meus links", sigla: "ML", cor: "#5b6b7a", nome: m.nome, desc: m.url, url: m.url, meu: i }));
+    return ACERVO.concat(meus);
+  }
+
+  function desenharAcervo() {
+    const cats = ["Todos"].concat([...new Set(itensAcervo().map((i) => i.cat))]);
+    $("acervoChips").innerHTML = cats.map((c) =>
+      `<button class="chip ${c === st.acervoCat ? "ativo" : ""}" data-action="filtrarAcervo" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+    const busca = $("acervoBusca").value.trim().toLowerCase();
+    const lista = itensAcervo().filter((i) =>
+      (st.acervoCat === "Todos" || i.cat === st.acervoCat) &&
+      (!busca || (i.nome + " " + i.desc + " " + i.cat).toLowerCase().includes(busca)));
+    $("acervoLista").innerHTML = lista.length ? lista.map((i) => `
+      <div class="item">
+        <div class="item-cab"><span class="sigla" style="background:${esc(i.cor)}">${esc(i.sigla)}</span>
+          <div><b>${esc(i.nome)}</b><br><small>${esc(i.cat)}</small></div></div>
+        <p>${esc(i.desc)}</p>
+        <div class="item-botoes">
+          <button class="btn peq" data-action="enviarAcervo" data-url="${esc(i.url)}" data-nome="${esc(i.nome)}">Enviar</button>
+          ${i.meu !== undefined ? `<button class="btn sec peq" data-action="removerMeuLink" data-i="${i.meu}">Remover</button>` : ""}
+        </div>
+      </div>`).join("") : '<p style="color:var(--cinza)">Nada encontrado.</p>';
+  }
+
+  function preencherAlvos() {
+    const agora = agoraServidor();
+    const online = Object.entries(st.alunos).filter(([, a]) => agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS);
+    $("acervoAlvo").innerHTML = '<option value="todos">Turma toda</option>' +
+      online.map(([id, a]) => `<option value="${esc(id)}">${esc(a.nome || "Aluno")}</option>`).join("");
   }
 
   // ---------- comandos ----------
@@ -478,9 +715,95 @@
       }
     },
 
+    abrirAcervo() {
+      $("msgAcervo").textContent = "";
+      preencherAlvos();
+      desenharAcervo();
+      $("modalAcervo").hidden = false;
+      $("acervoBusca").focus();
+    },
+
+    filtrarAcervo(el) {
+      st.acervoCat = el.dataset.cat;
+      desenharAcervo();
+    },
+
+    async enviarAcervo(el) {
+      const alvo = $("acervoAlvo").value;
+      await enviarLink(alvo, el.dataset.url);
+      const quem = alvo === "todos" ? "a turma" : nomeDe(alvo);
+      $("modalAcervo").hidden = true;
+      toast(`${el.dataset.nome} enviado para ${quem}.`);
+    },
+
+    addMeuLink() {
+      const nome = $("meuNome").value.trim();
+      let url = $("meuUrl").value.trim();
+      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      try { new URL(url); } catch (e) { $("msgAcervo").textContent = "Endereço inválido."; return; }
+      if (!nome) { $("msgAcervo").textContent = "Dê um nome ao link."; return; }
+      const lista = meusLinks();
+      lista.push({ nome: nome.slice(0, 60), url });
+      salvarMeusLinks(lista);
+      $("meuNome").value = ""; $("meuUrl").value = ""; $("msgAcervo").textContent = "";
+      st.acervoCat = "Meus links";
+      desenharAcervo();
+    },
+
+    removerMeuLink(el) {
+      const lista = meusLinks();
+      lista.splice(Number(el.dataset.i), 1);
+      salvarMeusLinks(lista);
+      desenharAcervo();
+    },
+
+    abrirAfinacao() {
+      $("modalAfinacao").hidden = false;
+      $("afTexto").select();
+    },
+
+    async lancarAfinacao() {
+      const pergunta = $("afTexto").value.trim() || "Entenderam?";
+      await fb(`aulas/${st.aula}/controle/afinacao`, "PUT", { id: novoId(), pergunta: pergunta.slice(0, 140), ativa: true, ts: { ".sv": "timestamp" } });
+      $("modalAfinacao").hidden = true;
+      toast("Pergunta enviada para a turma.");
+      atualizar();
+    },
+
+    async encerrarAfinacao() {
+      await fb(`aulas/${st.aula}/controle/afinacao/ativa`, "PUT", false);
+      toast("Afinação encerrada.");
+      atualizar();
+    },
+
+    abrirCompasso() {
+      $("modalCompasso").hidden = false;
+      $("cpTexto").select();
+    },
+
+    escolherMinutos(el) {
+      st.cpMin = Number(el.dataset.min);
+      document.querySelectorAll("#cpDuracoes .chip").forEach((c) => c.classList.toggle("ativo", c === el));
+    },
+
+    async iniciarCompasso() {
+      const titulo = $("cpTexto").value.trim() || "Atividade";
+      await fb(`aulas/${st.aula}/controle/compasso`, "PUT", {
+        id: novoId(), titulo: titulo.slice(0, 60), inicio: { ".sv": "timestamp" }, duracaoMs: st.cpMin * 60000, ativo: true
+      });
+      $("modalCompasso").hidden = true;
+      toast(`Compasso de ${st.cpMin} min iniciado.`);
+      atualizar();
+    },
+
+    async pararCompasso() {
+      await fb(`aulas/${st.aula}/controle/compasso/ativo`, "PUT", false);
+      toast("Compasso parado.");
+      atualizar();
+    },
+
     fecharModal() {
-      $("modalLink").hidden = true;
-      $("modalConfirmar").hidden = true;
+      ["modalLink", "modalConfirmar", "modalAcervo", "modalAfinacao", "modalCompasso"].forEach((m) => { $(m).hidden = true; });
       st.acaoPendente = null;
     }
   };
@@ -500,7 +823,11 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") acoes.fecharModal();
     if (e.key === "Enter" && !$("modalLink").hidden) acoes.confirmarLink();
+    if (e.key === "Enter" && !$("modalAfinacao").hidden) acoes.lancarAfinacao();
+    if (e.key === "Enter" && !$("modalCompasso").hidden) acoes.iniciarCompasso();
   });
+
+  $("acervoBusca").addEventListener("input", desenharAcervo);
 
   $("codigoRetomar").addEventListener("input", (e) => {
     e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
