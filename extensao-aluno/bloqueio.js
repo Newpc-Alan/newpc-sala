@@ -1,4 +1,4 @@
-// NEWPC Sala · tela de bloqueio
+// Portal Maestro · tela de bloqueio
 chrome.storage.local.get("nome", (d) => {
   if (d.nome) document.getElementById("nome").textContent = d.nome;
 });

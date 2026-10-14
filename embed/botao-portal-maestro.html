@@ -1,0 +1,54 @@
+<!-- Portal Maestro · botão para o Portal do Educador (Webnode, bloco HTML) -->
+<!-- Cole este código inteiro num bloco "HTML" do Webnode. Estilos com prefixo .pde-mae para não interferir no site. -->
+<div class="pde-mae">
+  <a class="pde-mae-card" href="https://sala.portaldoeducador.com.br/" target="_blank" rel="noopener">
+    <span class="pde-mae-icone"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
+  <defs>
+    <linearGradient id="pm-mf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16406b"/>
+      <stop offset="1" stop-color="#0a1f35"/>
+    </linearGradient>
+    <linearGradient id="pm-mg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#37B1DA"/>
+      <stop offset="1" stop-color="#B6D752"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#pm-mf)"/>
+  <!-- ondas: o comando do maestro chegando à turma -->
+  <path d="M36.6 20.3 A10 10 0 0 1 43.7 32.6" fill="none" stroke="url(#pm-mg)" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M38.7 12.6 A18 18 0 0 1 51.4 34.7" fill="none" stroke="url(#pm-mg)" stroke-width="4.6" stroke-linecap="round"/>
+  <!-- batuta -->
+  <path d="M15 49 L 33 31" stroke="#ffffff" stroke-width="4.4" stroke-linecap="round"/>
+  <circle cx="15" cy="49" r="5.4" fill="#ffffff"/>
+  <circle cx="34" cy="30" r="3.6" fill="#B6D752"/>
+</svg>
+</span>
+    <span class="pde-mae-texto">
+      <span class="pde-mae-titulo">Portal Maestro <em class="pde-mae-tag">Beta</em></span>
+      <span class="pde-mae-sub">Sala de aula gerenciada: conduza a turma, envie links e pause as telas durante a explicação.</span>
+    </span>
+    <span class="pde-mae-seta" aria-hidden="true">&rsaquo;</span>
+  </a>
+</div>
+<style>
+  .pde-mae { font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif; max-width:560px; margin:0 auto; }
+  .pde-mae-card { display:flex; align-items:center; gap:16px; padding:18px 20px; border-radius:16px; text-decoration:none;
+    background:linear-gradient(120deg,#0a1f35 0%,#16406b 100%); color:#fff; position:relative; overflow:hidden; box-shadow:0 6px 18px rgba(15,44,74,.25);
+    transition:transform .15s ease, box-shadow .15s ease; }
+  .pde-mae-card::after { content:""; position:absolute; left:0; right:0; bottom:0; height:5px; background:linear-gradient(90deg,#37B1DA,#B6D752); }
+  .pde-mae-card:hover, .pde-mae-card:focus-visible { transform:translateY(-2px); box-shadow:0 10px 24px rgba(15,44,74,.32); outline:none; }
+  .pde-mae-icone { flex:none; width:64px; height:64px; }
+  .pde-mae-icone svg { width:100%; height:100%; display:block; }
+  .pde-mae-texto { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+  .pde-mae-titulo { font-size:20px; font-weight:800; line-height:1.2; color:#fff; }
+  .pde-mae-tag { font-style:normal; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; vertical-align:middle;
+    background:#B6D752; color:#0F2C4A; padding:2px 7px; border-radius:20px; margin-left:6px; }
+  .pde-mae-sub { font-size:13.5px; line-height:1.4; color:rgba(255,255,255,.85); }
+  .pde-mae-seta { flex:none; font-size:34px; line-height:1; color:rgba(255,255,255,.7); }
+  @media (max-width:480px) {
+    .pde-mae-card { padding:14px; gap:12px; }
+    .pde-mae-icone { width:52px; height:52px; }
+    .pde-mae-titulo { font-size:18px; }
+    .pde-mae-seta { display:none; }
+  }
+</style>

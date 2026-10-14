@@ -1,4 +1,6 @@
-# NEWPC Sala · v0.3.0 (teste de bancada)
+# Portal Maestro · v0.4.0 (teste de bancada)
+
+**Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
 Professor abre a aula, aluno digita o número, professor gerencia os dispositivos.
 
@@ -15,7 +17,7 @@ Professor abre a aula, aluno digita o número, professor gerencia os dispositivo
 
 ## Passo 1 · Liberar o Firebase (obrigatório)
 
-Banco: projeto Firebase **newpc-sala**, instância `newpc-sala-default-rtdb` (us-central1). Se o painel mostrar "Acesso negado", confira as regras.
+Banco (nome técnico mantido): projeto Firebase **newpc-sala**, instância `newpc-sala-default-rtdb` (us-central1). Se o painel mostrar "Acesso negado", confira as regras.
 
 1. Firebase Console → projeto **newpc-sala** → Realtime Database → aba **Regras**
 2. Apague o conteúdo e cole o arquivo `regras-firebase.json`
@@ -48,7 +50,7 @@ Tempo de resposta esperado: comandos em até 3 s.
 
 Ao ligar o Chromebook (ou abrir o Chrome), a extensão abre sozinha a tela **Entrar na aula** (número + nome). Depois de entrar, a tela fecha em 2,5 s.
 
-A escola escolhe o comportamento pelo **Google Admin Console** → Dispositivos → Chrome → Apps e extensões → Usuários e navegadores → NEWPC Sala → **Política para extensões**:
+A escola escolhe o comportamento pelo **Google Admin Console** → Dispositivos → Chrome → Apps e extensões → Usuários e navegadores → Portal Maestro → **Política para extensões**:
 
 ```json
 { "entradaObrigatoria": { "Value": true } }

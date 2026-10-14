@@ -1,4 +1,4 @@
-// NEWPC Sala · popup do aluno
+// Portal Maestro · popup do aluno
 const $ = (id) => document.getElementById(id);
 
 function enviar(msg) {

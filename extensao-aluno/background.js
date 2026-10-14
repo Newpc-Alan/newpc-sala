@@ -1,4 +1,4 @@
-// NEWPC Sala · extensão do aluno · v0.3.0
+// Portal Maestro · extensão do aluno · v0.4.0
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -16,7 +16,7 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.3.0";
+const VERSAO = "0.4.0";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");
@@ -107,7 +107,7 @@ async function executarComando(cmd) {
 
   if (cmd.tipo === "abrirLink" && /^https?:\/\//i.test(cmd.url || "")) {
     await chrome.tabs.create({ url: cmd.url, active: true });
-    console.log("[NEWPC Sala] Link aberto:", cmd.url);
+    console.log("[Portal Maestro] Link aberto:", cmd.url);
   }
 }
 
@@ -118,7 +118,7 @@ async function verificarControle() {
   const controle = await fb(`aulas/${st.aula}/controle`);
 
   if (!controle || controle.encerrada) {
-    console.log("[NEWPC Sala] Aula encerrada pelo professor.");
+    console.log("[Portal Maestro] Aula encerrada pelo professor.");
     await sairDaAula(false);
     return;
   }
@@ -216,7 +216,7 @@ async function ciclo() {
         await verificarControle();
         if (volta % HEARTBEAT_A_CADA === 0) await enviarPresenca();
       } catch (e) {
-        console.warn("[NEWPC Sala] Falha no ciclo:", e.message);
+        console.warn("[Portal Maestro] Falha no ciclo:", e.message);
       }
       volta++;
       await esperar(INTERVALO_MS);

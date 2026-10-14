@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "NEWPC Sala · Aluno",
-  "version": "0.3.0",
-  "description": "Conecta este dispositivo à aula do professor (NEWPC Sala).",
+  "name": "Portal Maestro · Aluno",
+  "version": "0.4.0",
+  "description": "Conecta este Chromebook à aula conduzida pelo professor (Portal Maestro · Portal do Educador).",
   "permissions": [
     "storage",
     "identity",
@@ -18,7 +18,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "NEWPC Sala",
+    "default_title": "Portal Maestro",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

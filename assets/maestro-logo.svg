@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="mf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16406b"/>
+      <stop offset="1" stop-color="#0a1f35"/>
+    </linearGradient>
+    <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#37B1DA"/>
+      <stop offset="1" stop-color="#B6D752"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#mf)"/>
+  <!-- ondas: o comando do maestro chegando à turma -->
+  <path d="M36.6 20.3 A10 10 0 0 1 43.7 32.6" fill="none" stroke="url(#mg)" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M38.7 12.6 A18 18 0 0 1 51.4 34.7" fill="none" stroke="url(#mg)" stroke-width="4.6" stroke-linecap="round"/>
+  <!-- batuta -->
+  <path d="M15 49 L 33 31" stroke="#ffffff" stroke-width="4.4" stroke-linecap="round"/>
+  <circle cx="15" cy="49" r="5.4" fill="#ffffff"/>
+  <circle cx="34" cy="30" r="3.6" fill="#B6D752"/>
+</svg>

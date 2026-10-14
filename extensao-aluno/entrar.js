@@ -1,4 +1,4 @@
-// NEWPC Sala · tela de entrada na aula (abre ao ligar o Chromebook)
+// Portal Maestro · tela de entrada na aula (abre ao ligar o Chromebook)
 const $ = (id) => document.getElementById(id);
 
 function enviar(msg) {
