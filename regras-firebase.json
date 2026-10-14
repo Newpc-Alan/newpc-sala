@@ -7,10 +7,6 @@
         ".read": "$codigo.matches(/^[0-9]{6}$/)",
         ".write": "$codigo.matches(/^[0-9]{6}$/)"
       }
-    },
-    "dispositivos": {
-      ".read": true,
-      ".write": true
     }
   }
 }

@@ -1,7 +1,7 @@
-// NEWPC Sala · extensão do aluno · v0.2.0
+// NEWPC Sala · extensão do aluno · v0.2.1
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
-// Estrutura no Realtime Database (projeto newpc-classroom):
+// Estrutura no Realtime Database (projeto newpc-sala):
 //   aulas/{codigo}/professor, criadaEm
 //   aulas/{codigo}/controle/encerrada        true quando o professor encerra
 //   aulas/{codigo}/controle/bloqueioGeral    true/false para a turma inteira
@@ -10,8 +10,8 @@
 //   aulas/{codigo}/controle/comandos/{id}    último comando para um aluno
 //   aulas/{codigo}/alunos/{id}               presença que o aluno envia
 
-const FIREBASE_URL = "https://newpc-classroom-default-rtdb.firebaseio.com";
-const VERSAO = "0.2.0";
+const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
+const VERSAO = "0.2.1";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const URL_BLOQUEIO = chrome.runtime.getURL("bloqueio.html");

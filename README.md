@@ -1,4 +1,4 @@
-# NEWPC Sala · v0.2.0 (teste de bancada)
+# NEWPC Sala · v0.2.1 (teste de bancada)
 
 Professor abre a aula, aluno digita o número, professor gerencia os dispositivos.
 
@@ -15,9 +15,9 @@ Professor abre a aula, aluno digita o número, professor gerencia os dispositivo
 
 ## Passo 1 · Liberar o Firebase (obrigatório)
 
-O banco `newpc-classroom` foi criado em maio em **modo de teste**, que expira em 30 dias. Se o painel mostrar "Acesso negado", é isso.
+Banco: projeto Firebase **newpc-sala**, instância `newpc-sala-default-rtdb` (us-central1). Se o painel mostrar "Acesso negado", confira as regras.
 
-1. Firebase Console → projeto **newpc-classroom** → Realtime Database → aba **Regras**
+1. Firebase Console → projeto **newpc-sala** → Realtime Database → aba **Regras**
 2. Apague o conteúdo e cole o arquivo `regras-firebase.json`
 3. **Publicar**
 
