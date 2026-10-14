@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEWPC Sala · Professor</title>
+<style>
+  :root {
+    --verde:#1a6b2a; --verde-claro:#e3f1e6; --azul:#0f2c4a; --azul-2:#16406b;
+    --cinza:#5b6b7a; --borda:#d9e1e8; --fundo:#f4f6f9; --branco:#fff;
+    --vermelho:#b3261e; --vermelho-claro:#fde7e5; --amarelo:#8a6100; --amarelo-claro:#fff3d6;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 "Segoe UI",Roboto,Arial,sans-serif; color:var(--azul); background:var(--fundo); }
+  header { background:var(--azul); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:16px; border-bottom:5px solid var(--verde); }
+  header .logo { width:38px; height:38px; border-radius:8px; background:var(--verde); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; }
+  header h1 { font-size:18px; margin:0; font-weight:700; }
+  header small { display:block; font-size:12px; opacity:.75; font-weight:400; }
+  header .dir { margin-left:auto; font-size:13px; opacity:.85; }
+  main { max-width:1200px; margin:0 auto; padding:24px 16px 60px; }
+  [hidden] { display:none !important; }
+
+  .painel { background:var(--branco); border:1px solid var(--borda); border-radius:14px; padding:24px; }
+  .inicio { max-width:460px; margin:40px auto; }
+  .inicio h2 { margin:0 0 6px; }
+  .inicio p { color:var(--cinza); margin:0 0 18px; }
+  label { display:block; font-size:12px; font-weight:600; color:var(--cinza); margin:14px 0 5px; text-transform:uppercase; letter-spacing:.4px; }
+  input[type=text], input[type=url] { width:100%; padding:11px 12px; border:1px solid var(--borda); border-radius:9px; font-size:15px; color:var(--azul); }
+  input:focus { outline:2px solid var(--verde); outline-offset:1px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 16px; border:0; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer; background:var(--verde); color:#fff; white-space:nowrap; }
+  .btn:hover { filter:brightness(1.08); }
+  .btn.sec { background:#e6ebf0; color:var(--azul); }
+  .btn.alerta { background:var(--vermelho); }
+  .btn.peq { padding:6px 10px; font-size:12px; border-radius:7px; }
+  .btn.largo { width:100%; margin-top:18px; padding:13px; font-size:15px; }
+  .separador { text-align:center; color:var(--cinza); font-size:12px; margin:22px 0 4px; }
+  .linha { display:flex; gap:8px; }
+  .linha input { flex:1; }
+  .msg { min-height:20px; margin-top:10px; font-size:13px; }
+  .msg.erro { color:var(--vermelho); }
+
+  .topo-aula { display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:stretch; margin-bottom:18px; }
+  .codigo { background:var(--azul); color:#fff; border-radius:14px; padding:18px 26px; text-align:center; min-width:240px; }
+  .codigo span { font-size:12px; letter-spacing:1px; opacity:.75; text-transform:uppercase; }
+  .codigo strong { display:block; font-size:44px; letter-spacing:8px; font-weight:800; line-height:1.15; }
+  .codigo em { font-style:normal; font-size:12px; opacity:.75; }
+  .controles { display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .contadores { display:flex; gap:10px; flex-wrap:wrap; }
+  .contador { background:var(--fundo); border-radius:10px; padding:8px 14px; font-size:13px; color:var(--cinza); }
+  .contador b { font-size:20px; color:var(--azul); margin-right:4px; }
+  .acoes { display:flex; gap:8px; flex-wrap:wrap; }
+
+  .grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:12px; }
+  .aluno { background:var(--branco); border:1px solid var(--borda); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:8px; }
+  .aluno.offline { opacity:.55; }
+  .aluno.bloq { border-color:var(--vermelho); box-shadow:inset 0 0 0 1px var(--vermelho); }
+  .aluno .cab { display:flex; align-items:center; gap:8px; }
+  .ponto { width:10px; height:10px; border-radius:50%; background:#9aa7b3; flex:none; }
+  .online .ponto { background:#2fa84f; box-shadow:0 0 0 3px rgba(47,168,79,.2); }
+  .aluno .nome { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .aluno .email { font-size:12px; color:var(--cinza); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .aluno .aba { font-size:12px; background:var(--fundo); border-radius:8px; padding:6px 8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .aluno .aba b { color:var(--cinza); font-weight:600; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; }
+  .tag { font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--verde-claro); color:var(--verde); }
+  .tag.bloq { background:var(--vermelho-claro); color:var(--vermelho); }
+  .tag.off { background:#e6ebf0; color:var(--cinza); }
+  .aluno .botoes { display:flex; gap:6px; margin-top:auto; }
+  .aluno .botoes .btn { flex:1; }
+  .vazio { text-align:center; color:var(--cinza); padding:50px 20px; border:2px dashed var(--borda); border-radius:14px; }
+  .vazio strong { color:var(--azul); font-size:17px; display:block; margin-bottom:6px; }
+
+  .modal-fundo { position:fixed; inset:0; background:rgba(10,31,53,.55); display:flex; align-items:center; justify-content:center; padding:16px; z-index:20; }
+  .modal { background:#fff; border-radius:14px; padding:22px; width:100%; max-width:460px; }
+  .modal h3 { margin:0 0 4px; }
+  .modal p { margin:0; color:var(--cinza); font-size:13px; }
+  .modal .rodape { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--azul); color:#fff; padding:10px 18px; border-radius:10px; font-size:14px; z-index:30; box-shadow:0 6px 20px rgba(0,0,0,.2); }
+  .conexao { font-size:12px; }
+  .conexao.ruim { color:#ffd0cc; }
+
+  @media (max-width:720px) {
+    .topo-aula { grid-template-columns:1fr; }
+    header .dir { display:none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">N</div>
+  <h1>NEWPC Sala <small>Painel do professor</small></h1>
+  <div class="dir"><span class="conexao" id="conexao">Conectado</span></div>
+</header>
+
+<main>
+  <!-- INÍCIO -->
+  <section class="painel inicio" id="telaInicio">
+    <h2>Iniciar aula</h2>
+    <p>Gere o número da aula e passe para a turma. Os alunos digitam esse número na extensão NEWPC Sala.</p>
+    <label for="nomeProfessor">Seu nome</label>
+    <input type="text" id="nomeProfessor" maxlength="60" placeholder="Prof. Nome Sobrenome">
+    <button class="btn largo" data-action="novaAula">Gerar número da aula</button>
+    <div class="separador">ou retome uma aula aberta</div>
+    <div class="linha">
+      <input type="text" id="codigoRetomar" inputmode="numeric" maxlength="6" placeholder="000000">
+      <button class="btn sec" data-action="retomarAula">Retomar</button>
+    </div>
+    <div class="msg" id="msgInicio"></div>
+  </section>
+
+  <!-- AULA -->
+  <section id="telaAula" hidden>
+    <div class="topo-aula">
+      <div class="codigo">
+        <span>Número da aula</span>
+        <strong id="codigoAula">------</strong>
+        <em id="professorAula"></em>
+      </div>
+      <div class="painel controles">
+        <div class="contadores">
+          <div class="contador"><b id="cOnline">0</b>online</div>
+          <div class="contador"><b id="cBloq">0</b>bloqueados</div>
+          <div class="contador"><b id="cOff">0</b>desconectados</div>
+        </div>
+        <div class="acoes">
+          <button class="btn" data-action="abrirModalLink" data-alvo="todos">Enviar link para todos</button>
+          <button class="btn alerta" data-action="bloquearTodos">Bloquear todos</button>
+          <button class="btn sec" data-action="desbloquearTodos">Desbloquear todos</button>
+          <button class="btn sec" data-action="limparDesconectados">Limpar desconectados</button>
+          <button class="btn sec" data-action="encerrarAula" style="margin-left:auto">Encerrar aula</button>
+        </div>
+      </div>
+    </div>
+    <div class="grade" id="grade"></div>
+    <div class="vazio" id="vazio">
+      <strong>Aguardando alunos</strong>
+      Peça para a turma abrir a extensão NEWPC Sala e digitar o número da aula.
+    </div>
+  </section>
+</main>
+
+<!-- MODAL LINK -->
+<div class="modal-fundo" id="modalLink" hidden>
+  <div class="modal">
+    <h3>Enviar link</h3>
+    <p id="modalLinkAlvo">Abre em uma nova aba em todos os dispositivos.</p>
+    <label for="urlLink">Endereço</label>
+    <input type="url" id="urlLink" placeholder="https://">
+    <div class="msg erro" id="msgLink"></div>
+    <div class="rodape">
+      <button class="btn sec" data-action="fecharModal">Cancelar</button>
+      <button class="btn" data-action="confirmarLink">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR -->
+<div class="modal-fundo" id="modalConfirmar" hidden>
+  <div class="modal">
+    <h3 id="confTitulo">Confirmar</h3>
+    <p id="confTexto"></p>
+    <div class="rodape">
+      <button class="btn sec" data-action="fecharModal">Cancelar</button>
+      <button class="btn alerta" data-action="confirmarAcao">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const FIREBASE_URL = "https://newpc-classroom-default-rtdb.firebaseio.com";
+  const INTERVALO_MS = 3000;
+  const LIMITE_ONLINE_MS = 45000;
+  const CHAVE_LOCAL = "newpcSala.professor";
+
+  const $ = (id) => document.getElementById(id);
+  const st = { aula: null, professor: "", alunos: {}, controle: {}, offset: 0, timer: null, linkAlvo: "todos", acaoPendente: null };
+
+  // ---------- utilidades ----------
+
+  function esc(t) {
+    return String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  }
+
+  async function fb(caminho, metodo, corpo) {
+    const op = { method: metodo || "GET", headers: { "Content-Type": "application/json" } };
+    if (corpo !== undefined) op.body = JSON.stringify(corpo);
+    const r = await fetch(`${FIREBASE_URL}/${caminho}.json`, op);
+    if (!r.ok) {
+      if (r.status === 401 || r.status === 403) throw new Error("Acesso negado pelo Firebase. Confira as regras do banco (arquivo regras-firebase.json).");
+      throw new Error(`Erro ${r.status} no servidor.`);
+    }
+    return r.json();
+  }
+
+  function salvarLocal(dados) {
+    try { localStorage.setItem(CHAVE_LOCAL, JSON.stringify(dados)); } catch (e) { /* navegador sem storage */ }
+  }
+  function lerLocal() {
+    try { return JSON.parse(localStorage.getItem(CHAVE_LOCAL) || "{}"); } catch (e) { return {}; }
+  }
+
+  let toastTimer = null;
+  function toast(texto) {
+    const t = $("toast");
+    t.textContent = texto;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+
+  function novoId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function agoraServidor() {
+    return Date.now() + st.offset;
+  }
+
+  // ---------- início / aula ----------
+
+  async function gerarCodigoLivre() {
+    for (let i = 0; i < 8; i++) {
+      const c = String(Math.floor(100000 + Math.random() * 900000));
+      const existe = await fb(`aulas/${c}/criadaEm`);
+      if (existe === null) return c;
+    }
+    throw new Error("Não foi possível gerar um número livre. Tente de novo.");
+  }
+
+  async function calibrarRelogio(codigo) {
+    const antes = Date.now();
+    await fb(`aulas/${codigo}/ping`, "PUT", { ".sv": "timestamp" });
+    const servidor = await fb(`aulas/${codigo}/ping`);
+    const depois = Date.now();
+    if (typeof servidor === "number") st.offset = servidor - Math.round((antes + depois) / 2);
+  }
+
+  async function abrirAula(codigo, professor) {
+    st.aula = codigo;
+    st.professor = professor || "";
+    $("codigoAula").textContent = codigo;
+    $("professorAula").textContent = professor ? professor : "";
+    $("telaInicio").hidden = true;
+    $("telaAula").hidden = false;
+    salvarLocal({ aula: codigo, professor: st.professor });
+    await calibrarRelogio(codigo).catch(() => {});
+    atualizar();
+    clearInterval(st.timer);
+    st.timer = setInterval(atualizar, INTERVALO_MS);
+  }
+
+  function voltarInicio() {
+    clearInterval(st.timer);
+    st.aula = null;
+    st.alunos = {};
+    $("telaAula").hidden = true;
+    $("telaInicio").hidden = false;
+    $("grade").innerHTML = "";
+    salvarLocal({ professor: st.professor });
+  }
+
+  // ---------- leitura periódica ----------
+
+  async function atualizar() {
+    if (!st.aula) return;
+    try {
+      const aula = await fb(`aulas/${st.aula}`);
+      $("conexao").textContent = "Conectado";
+      $("conexao").classList.remove("ruim");
+      if (!aula || (aula.controle && aula.controle.encerrada)) {
+        toast("Esta aula foi encerrada.");
+        voltarInicio();
+        return;
+      }
+      st.alunos = aula.alunos || {};
+      st.controle = aula.controle || {};
+      desenhar();
+    } catch (e) {
+      $("conexao").textContent = "Sem conexão";
+      $("conexao").classList.add("ruim");
+    }
+  }
+
+  function bloqueadoEsperado(id) {
+    const ind = st.controle.bloqueio ? st.controle.bloqueio[id] : undefined;
+    return typeof ind === "boolean" ? ind : !!st.controle.bloqueioGeral;
+  }
+
+  function desenhar() {
+    const agora = agoraServidor();
+    const lista = Object.entries(st.alunos).map(([id, a]) => ({
+      id, ...a, online: agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS
+    }));
+    lista.sort((a, b) => (b.online - a.online) || String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+
+    let on = 0, bl = 0, off = 0;
+    const html = lista.map((a) => {
+      const esperado = bloqueadoEsperado(a.id);
+      if (a.online) on++; else off++;
+      if (a.online && a.bloqueado) bl++;
+      const pendente = a.online && esperado !== !!a.bloqueado;
+      const aba = a.aba && a.aba.titulo ? a.aba.titulo : (a.aba && a.aba.url ? a.aba.url : "Sem aba ativa");
+      const tags = [
+        a.online ? '<span class="tag">Online</span>' : '<span class="tag off">Desconectado</span>',
+        a.bloqueado ? '<span class="tag bloq">Bloqueado</span>' : "",
+        pendente ? '<span class="tag off">Aplicando...</span>' : ""
+      ].join("");
+      return `
+        <div class="aluno ${a.online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""}">
+          <div class="cab"><span class="ponto"></span><span class="nome" title="${esc(a.nome)}">${esc(a.nome || "Sem nome")}</span></div>
+          <div class="email" title="${esc(a.email)}">${esc(a.email || "conta não identificada")}</div>
+          <div class="aba" title="${esc(a.aba && a.aba.url)}"><b>Aba:</b> ${esc(aba)}</div>
+          <div class="tags">${tags}</div>
+          <div class="botoes">
+            ${esperado
+              ? `<button class="btn sec peq" data-action="desbloquearUm" data-id="${esc(a.id)}">Desbloquear</button>`
+              : `<button class="btn alerta peq" data-action="bloquearUm" data-id="${esc(a.id)}">Bloquear</button>`}
+            <button class="btn sec peq" data-action="abrirModalLink" data-alvo="${esc(a.id)}">Enviar link</button>
+          </div>
+        </div>`;
+    }).join("");
+
+    $("grade").innerHTML = html;
+    $("vazio").hidden = lista.length > 0;
+    $("cOnline").textContent = on;
+    $("cBloq").textContent = bl;
+    $("cOff").textContent = off;
+  }
+
+  // ---------- comandos ----------
+
+  async function enviarLink(alvo, url) {
+    const cmd = { id: novoId(), tipo: "abrirLink", url, ts: { ".sv": "timestamp" } };
+    const caminho = alvo === "todos" ? `aulas/${st.aula}/controle/comando` : `aulas/${st.aula}/controle/comandos/${alvo}`;
+    await fb(caminho, "PUT", cmd);
+  }
+
+  function nomeDe(id) {
+    return (st.alunos[id] && st.alunos[id].nome) || "o aluno";
+  }
+
+  function confirmar(titulo, texto, acao) {
+    $("confTitulo").textContent = titulo;
+    $("confTexto").textContent = texto;
+    st.acaoPendente = acao;
+    $("modalConfirmar").hidden = false;
+  }
+
+  const acoes = {
+    async novaAula() {
+      const prof = $("nomeProfessor").value.trim();
+      if (!prof) { $("msgInicio").textContent = "Digite seu nome."; $("msgInicio").className = "msg erro"; return; }
+      $("msgInicio").textContent = "Gerando número...";
+      $("msgInicio").className = "msg";
+      try {
+        const codigo = await gerarCodigoLivre();
+        await fb(`aulas/${codigo}`, "PUT", {
+          professor: prof,
+          criadaEm: { ".sv": "timestamp" },
+          controle: { encerrada: false, bloqueioGeral: false }
+        });
+        $("msgInicio").textContent = "";
+        abrirAula(codigo, prof);
+      } catch (e) {
+        $("msgInicio").textContent = e.message;
+        $("msgInicio").className = "msg erro";
+      }
+    },
+
+    async retomarAula() {
+      const c = $("codigoRetomar").value.replace(/\D/g, "");
+      if (c.length !== 6) { $("msgInicio").textContent = "O número tem 6 dígitos."; $("msgInicio").className = "msg erro"; return; }
+      try {
+        const aula = await fb(`aulas/${c}`);
+        if (!aula) throw new Error("Aula não encontrada.");
+        if (aula.controle && aula.controle.encerrada) throw new Error("Esta aula já foi encerrada.");
+        $("msgInicio").textContent = "";
+        abrirAula(c, aula.professor || "");
+      } catch (e) {
+        $("msgInicio").textContent = e.message;
+        $("msgInicio").className = "msg erro";
+      }
+    },
+
+    abrirModalLink(el) {
+      st.linkAlvo = el.dataset.alvo || "todos";
+      $("modalLinkAlvo").textContent = st.linkAlvo === "todos"
+        ? "Abre em uma nova aba em todos os dispositivos conectados."
+        : `Abre em uma nova aba no dispositivo de ${nomeDe(st.linkAlvo)}.`;
+      $("msgLink").textContent = "";
+      $("modalLink").hidden = false;
+      $("urlLink").focus();
+    },
+
+    async confirmarLink() {
+      let url = $("urlLink").value.trim();
+      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      try { new URL(url); } catch (e) { $("msgLink").textContent = "Endereço inválido."; return; }
+      try {
+        await enviarLink(st.linkAlvo, url);
+        $("modalLink").hidden = true;
+        toast(st.linkAlvo === "todos" ? "Link enviado para a turma." : `Link enviado para ${nomeDe(st.linkAlvo)}.`);
+      } catch (e) {
+        $("msgLink").textContent = e.message;
+      }
+    },
+
+    async bloquearTodos() {
+      await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: true, bloqueio: null });
+      toast("Bloqueando todas as telas...");
+      atualizar();
+    },
+
+    async desbloquearTodos() {
+      await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: false, bloqueio: null });
+      toast("Liberando todas as telas...");
+      atualizar();
+    },
+
+    async bloquearUm(el) {
+      await fb(`aulas/${st.aula}/controle/bloqueio/${el.dataset.id}`, "PUT", true);
+      toast(`Bloqueando ${nomeDe(el.dataset.id)}...`);
+      atualizar();
+    },
+
+    async desbloquearUm(el) {
+      await fb(`aulas/${st.aula}/controle/bloqueio/${el.dataset.id}`, "PUT", false);
+      toast(`Liberando ${nomeDe(el.dataset.id)}...`);
+      atualizar();
+    },
+
+    limparDesconectados() {
+      const agora = agoraServidor();
+      const ids = Object.entries(st.alunos).filter(([, a]) => agora - (a.ultimaAtividade || 0) >= LIMITE_ONLINE_MS).map(([id]) => id);
+      if (!ids.length) { toast("Nenhum aluno desconectado."); return; }
+      confirmar("Limpar desconectados", `Remover ${ids.length} aluno(s) desconectado(s) da lista?`, async () => {
+        const patch = {};
+        ids.forEach((id) => { patch[id] = null; });
+        await fb(`aulas/${st.aula}/alunos`, "PATCH", patch);
+        toast("Lista atualizada.");
+        atualizar();
+      });
+    },
+
+    encerrarAula() {
+      confirmar("Encerrar aula", "Todos os dispositivos serão desbloqueados e desconectados desta aula.", async () => {
+        await fb(`aulas/${st.aula}/controle`, "PATCH", { encerrada: true, bloqueioGeral: false, bloqueio: null });
+        await fb(`aulas/${st.aula}/encerradaEm`, "PUT", { ".sv": "timestamp" });
+        toast("Aula encerrada.");
+        voltarInicio();
+      });
+    },
+
+    async confirmarAcao() {
+      const fn = st.acaoPendente;
+      st.acaoPendente = null;
+      $("modalConfirmar").hidden = true;
+      if (fn) {
+        try { await fn(); } catch (e) { toast(e.message); }
+      }
+    },
+
+    fecharModal() {
+      $("modalLink").hidden = true;
+      $("modalConfirmar").hidden = true;
+      st.acaoPendente = null;
+    }
+  };
+
+  // ---------- eventos (delegação, sem onclick inline) ----------
+
+  document.addEventListener("click", async (e) => {
+    const el = e.target.closest("[data-action]");
+    if (el && acoes[el.dataset.action]) {
+      try { await acoes[el.dataset.action](el); }
+      catch (err) { toast(err.message); }
+      return;
+    }
+    if (e.target.classList.contains("modal-fundo")) acoes.fecharModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") acoes.fecharModal();
+    if (e.key === "Enter" && !$("modalLink").hidden) acoes.confirmarLink();
+  });
+
+  $("codigoRetomar").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
+  });
+
+  // ---------- inicialização ----------
+
+  const salvo = lerLocal();
+  if (salvo.professor) { $("nomeProfessor").value = salvo.professor; st.professor = salvo.professor; }
+  if (salvo.aula) $("codigoRetomar").value = salvo.aula;
+})();
+</script>
+</body>
+</html>
