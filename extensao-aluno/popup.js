@@ -21,6 +21,9 @@ async function atualizar() {
     $("pillStatus").textContent = st.bloqueado ? "Tela bloqueada pelo professor" : "Conectado";
     $("pillStatus").classList.toggle("bloq", st.bloqueado);
     $("btnSair").disabled = st.bloqueado;
+    $("btnMao").classList.toggle("erguida", !!st.mao);
+    $("txtMao").textContent = st.mao ? "Mão levantada · baixar" : "Levantar a mão";
+    $("dicaMao").textContent = st.mao ? "Aguarde: o professor já está vendo." : "O professor vê no painel que você quer falar.";
   } else {
     $("telaNaAula").hidden = true;
     $("telaEntrar").hidden = false;
@@ -41,6 +44,13 @@ const acoes = {
     $("btnEntrar").disabled = false;
     if (!r.ok) return mensagem($("msgEntrar"), r.erro, "erro");
     mensagem($("msgEntrar"), "");
+    atualizar();
+  },
+  async mao() {
+    $("btnMao").disabled = true;
+    const r = await enviar({ tipo: "mao" });
+    $("btnMao").disabled = false;
+    if (!r || !r.ok) return mensagem($("msgAula"), (r && r.erro) || "Não foi possível avisar o professor.", "erro");
     atualizar();
   },
   async sair() {
@@ -64,3 +74,6 @@ $("codigo").addEventListener("input", (e) => {
 });
 
 atualizar();
+
+// a mão pode ser baixada pelo professor enquanto o popup está aberto
+chrome.storage.onChanged.addListener((m, area) => { if (area === "local" && m.mao) atualizar(); });

@@ -141,6 +141,61 @@
   .meus-links input { flex:1; min-width:160px; }
   .duracoes { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
 
+  /* ---- painel da aula ---- */
+  .resumo { display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .resumo-cab { display:flex; align-items:center; gap:12px; }
+  .resumo-cab h2, .turma-cab h2, .linha-tempo h2 { margin:0; font-size:16px; font-weight:800; }
+  .duracao { color:var(--cinza); font-size:13px; margin-right:auto; font-variant-numeric:tabular-nums; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .tile { background:var(--fundo); border-radius:12px; padding:10px 12px; display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; column-gap:8px; align-items:center; }
+  .tile .t-ico { grid-row:1 / span 2; font-size:24px; }
+  .tile b { font-size:24px; line-height:1; color:var(--azul); }
+  .tile span:last-child { font-size:12px; color:var(--cinza); }
+  .tile.ativo { background:#fff3d6; box-shadow:inset 0 0 0 2px #e0a321; }
+
+  .barra-acoes { display:grid; grid-template-columns:repeat(3,1fr); gap:0; padding:0; margin-bottom:16px; overflow:hidden; }
+  .grupo { padding:14px 16px; display:flex; flex-direction:column; gap:8px; }
+  .grupo + .grupo { border-left:1px solid var(--borda); }
+  .grupo-rot { font-size:11px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--cinza); }
+  .grupo-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .btn.acao { justify-content:flex-start; padding:11px 12px; font-size:14px; }
+  .btn.acao .ic { font-size:17px; margin-right:2px; }
+
+  .aviso-maos { display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:#fff3d6; border:2px solid #e0a321; color:#6b4b00;
+                border-radius:14px; padding:12px 16px; margin-bottom:16px; font-weight:700; }
+  .aviso-maos .mao-ani { font-size:28px; animation:aceno 1s ease-in-out infinite; transform-origin:70% 90%; }
+  .aviso-maos .quem { display:flex; gap:8px; flex-wrap:wrap; flex:1; }
+  .aviso-maos .quem button { border:0; background:#fff; color:#6b4b00; border-radius:20px; padding:6px 12px; font:inherit; font-size:13px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .aviso-maos .quem button:hover { background:#ffe7a8; }
+  @keyframes aceno { 0%,100% { transform:rotate(-12deg); } 50% { transform:rotate(14deg); } }
+  @keyframes tremor { 0%,100% { transform:translateX(0); } 15% { transform:translateX(-7px); } 30% { transform:translateX(6px); } 45% { transform:translateX(-5px); } 60% { transform:translateX(4px); } 75% { transform:translateX(-2px); } }
+  .tremer { animation:tremor .55s ease-in-out; }
+
+  .aluno.mao { border-color:#e0a321; box-shadow:0 0 0 2px #e0a321; animation:piscaMao 1.2s ease-in-out infinite; }
+  @keyframes piscaMao { 50% { box-shadow:0 0 0 6px rgba(224,163,33,.35); } }
+  .mao-card { display:flex; align-items:center; gap:8px; background:#fff3d6; color:#6b4b00; border-radius:10px; padding:6px 10px; font-size:13px; font-weight:700; }
+  .mao-card .mao-ani { font-size:20px; animation:aceno 1s ease-in-out infinite; transform-origin:70% 90%; }
+  .mao-card button { margin-left:auto; border:0; background:#e0a321; color:#fff; border-radius:7px; padding:4px 10px; font:inherit; font-size:12px; cursor:pointer; }
+
+  .cols { display:grid; grid-template-columns:1fr 290px; gap:16px; align-items:start; }
+  .turma-cab { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .link { border:0; background:none; color:var(--cinza); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-decoration:underline; }
+  .linha-tempo { padding:16px; position:sticky; top:12px; }
+  .linha-tempo ol { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:520px; overflow:auto; }
+  .linha-tempo li { display:grid; grid-template-columns:auto 1fr; gap:8px; font-size:13px; line-height:1.35; }
+  .linha-tempo li .lt-ico { font-size:16px; }
+  .linha-tempo li small { display:block; color:var(--cinza); font-size:11px; }
+  .lt-vazio { color:var(--cinza); display:block !important; }
+
+  @media (max-width:1100px) {
+    .cols { grid-template-columns:1fr; }
+    .linha-tempo { position:static; }
+  }
+  @media (max-width:900px) {
+    .barra-acoes { grid-template-columns:1fr; }
+    .grupo + .grupo { border-left:0; border-top:1px solid var(--borda); }
+    .tiles { grid-template-columns:repeat(2,1fr); }
+  }
   @media (max-width:720px) {
     .topo-aula { grid-template-columns:1fr; }
     header .dir { display:none; }
@@ -181,28 +236,52 @@
         <strong id="codigoAula">------</strong>
         <em id="professorAula"></em>
       </div>
-      <div class="painel controles">
-        <div class="contadores">
-          <div class="contador"><b id="cOnline">0</b>online</div>
-          <div class="contador"><b id="cBloq">0</b>bloqueados</div>
-          <div class="contador"><b id="cOff">0</b>desconectados</div>
+      <div class="painel resumo">
+        <div class="resumo-cab">
+          <h2>Painel da aula</h2>
+          <span class="duracao" id="duracaoAula">00:00 de aula</span>
+          <button class="btn sec peq" data-action="encerrarAula">Encerrar aula</button>
         </div>
-        <div class="acoes">
-          <button class="btn" data-action="abrirAcervo">Acervo</button>
-          <button class="btn sec" data-action="abrirAfinacao">Afinação</button>
-          <button class="btn sec" data-action="abrirCompasso">Compasso</button>
-          <button class="btn sec" data-action="abrirModalLink" data-alvo="todos">Link</button>
-          <button class="btn alerta" data-action="bloquearTodos">Bloquear todos</button>
-          <button class="btn sec" data-action="desbloquearTodos">Desbloquear todos</button>
-          <button class="btn sec" data-action="limparDesconectados">Limpar desconectados</button>
-          <button class="btn sec" data-action="encerrarAula" style="margin-left:auto">Encerrar aula</button>
+        <div class="tiles">
+          <div class="tile"><span class="t-ico">👩‍🎓</span><b id="cOnline">0</b><span>conectados</span></div>
+          <div class="tile t-mao"><span class="t-ico">✋</span><b id="cMaos">0</b><span>mãos levantadas</span></div>
+          <div class="tile"><span class="t-ico">💬</span><b id="cInter">0</b><span>interações dos alunos</span></div>
+          <div class="tile"><span class="t-ico">🔒</span><b id="cBloq">0</b><span>telas bloqueadas</span></div>
+        </div>
+        <span id="cOff" hidden>0</span>
+      </div>
+    </div>
+
+    <div class="painel barra-acoes">
+      <div class="grupo">
+        <span class="grupo-rot">Conduzir a aula</span>
+        <div class="grupo-btns">
+          <button class="btn acao" data-action="abrirAcervo" title="Abrir um conteúdo do Portal do Educador nos Chromebooks"><span class="ic">📚</span>Conteúdos</button>
+          <button class="btn sec acao" data-action="abrirModalLink" data-alvo="todos" title="Abrir um site nos Chromebooks"><span class="ic">🔗</span>Enviar link</button>
+        </div>
+      </div>
+      <div class="grupo">
+        <span class="grupo-rot">Ouvir a turma</span>
+        <div class="grupo-btns">
+          <button class="btn sec acao" data-action="abrirAfinacao" title="Pergunte se entenderam: cada aluno responde em um toque"><span class="ic">📊</span>Pesquisa rápida</button>
+          <button class="btn sec acao" data-action="abrirCompasso" title="Cronômetro na tela de todos"><span class="ic">⏱️</span>Cronômetro</button>
+        </div>
+      </div>
+      <div class="grupo">
+        <span class="grupo-rot">Telas dos alunos</span>
+        <div class="grupo-btns">
+          <button class="btn alerta acao" data-action="bloquearTodos" title="Pausa as telas para a turma prestar atenção"><span class="ic">🔒</span>Bloquear telas</button>
+          <button class="btn sec acao" data-action="desbloquearTodos" title="Libera todas as telas"><span class="ic">🔓</span>Liberar telas</button>
         </div>
       </div>
     </div>
+
+    <div class="aviso-maos" id="avisoMaos" hidden></div>
+
     <div class="regencia" id="regencia">
       <div class="reg-card" id="cardAfinacao" hidden>
         <div class="reg-topo">
-          <span class="reg-rotulo">Afinação</span>
+          <span class="reg-rotulo">📊 Pesquisa rápida</span>
           <span class="reg-titulo" id="afPergunta"></span>
           <button class="btn sec peq" data-action="encerrarAfinacao">Encerrar</button>
         </div>
@@ -211,7 +290,7 @@
       </div>
       <div class="reg-card" id="cardCompasso" hidden>
         <div class="reg-topo">
-          <span class="reg-rotulo">Compasso</span>
+          <span class="reg-rotulo">⏱️ Cronômetro</span>
           <span class="reg-titulo" id="cpTitulo"></span>
           <button class="btn sec peq" data-action="pararCompasso">Parar</button>
         </div>
@@ -219,10 +298,23 @@
         <div class="reg-barra"><i id="cpBarra"></i></div>
       </div>
     </div>
-    <div class="grade" id="grade"></div>
-    <div class="vazio" id="vazio">
-      <strong>Aguardando alunos</strong>
-      Peça para a turma ligar os Chromebooks e digitar o número da aula na tela de entrada.
+
+    <div class="cols">
+      <div>
+        <div class="turma-cab">
+          <h2>Turma</h2>
+          <button class="link" data-action="limparDesconectados">Limpar desconectados</button>
+        </div>
+        <div class="grade" id="grade"></div>
+        <div class="vazio" id="vazio">
+          <strong>Aguardando alunos</strong>
+          Peça para a turma ligar os Chromebooks e digitar o número da aula na tela de entrada.
+        </div>
+      </div>
+      <aside class="painel linha-tempo">
+        <h2>Linha do tempo</h2>
+        <ol id="linhaTempo"><li class="lt-vazio">As interações da aula aparecem aqui.</li></ol>
+      </aside>
     </div>
   </section>
 </main>
@@ -230,7 +322,7 @@
 <!-- MODAL ACERVO -->
 <div class="modal-fundo" id="modalAcervo" hidden>
   <div class="modal largo">
-    <h3>Acervo na batuta</h3>
+    <h3>📚 Conteúdos</h3>
     <p>Escolha o conteúdo e envie: abre sozinho nos Chromebooks em até 3 segundos.</p>
     <div class="acervo-topo">
       <input type="text" id="acervoBusca" placeholder="Buscar no acervo">
@@ -251,13 +343,13 @@
 <!-- MODAL AFINAÇÃO -->
 <div class="modal-fundo" id="modalAfinacao" hidden>
   <div class="modal">
-    <h3>Afinação</h3>
-    <p>Cada aluno responde Entendi, Mais ou menos ou Não entendi. Só você vê as respostas.</p>
+    <h3>📊 Pesquisa rápida</h3>
+    <p>Cada aluno responde com um toque: Entendi, Mais ou menos ou Não entendi. Só você vê quem respondeu o quê.</p>
     <label for="afTexto">Pergunta</label>
     <input type="text" id="afTexto" maxlength="140" value="Entenderam a explicação?">
     <div class="rodape">
       <button class="btn sec" data-action="fecharModal">Cancelar</button>
-      <button class="btn" data-action="lancarAfinacao">Perguntar à turma</button>
+      <button class="btn" data-action="lancarAfinacao">Enviar pesquisa</button>
     </div>
   </div>
 </div>
@@ -265,7 +357,7 @@
 <!-- MODAL COMPASSO -->
 <div class="modal-fundo" id="modalCompasso" hidden>
   <div class="modal">
-    <h3>Compasso</h3>
+    <h3>⏱️ Cronômetro</h3>
     <p>Cronômetro na tela de todos. Ao terminar, toca um aviso.</p>
     <label for="cpTexto">Atividade</label>
     <input type="text" id="cpTexto" maxlength="60" value="Atividade em dupla">
@@ -444,6 +536,8 @@
     clearInterval(st.timer);
     st.aula = null;
     st.alunos = {};
+    st.log = {}; st.maosVistas = {}; st.respVistas = {}; st.carregouUmaVez = false; st.criadaEm = null;
+    st.ultimaGrade = ""; st.ultimaLt = ""; st.ultimoAviso = "";
     $("telaAula").hidden = true;
     $("telaInicio").hidden = false;
     $("grade").innerHTML = "";
@@ -480,8 +574,15 @@
       st.alunos = aula.alunos || {};
       st.controle = aula.controle || {};
       st.respostas = aula.respostas || {};
+      st.log = aula.log || {};
+      st.criadaEm = aula.criadaEm || st.criadaEm;
+      registrarRespostasNovas();
       desenhar();
       desenharRegencia();
+      processarMaos();
+      contarInteracoes();
+      desenharLinhaTempo();
+      st.carregouUmaVez = true;
     } catch (e) {
       $("conexao").textContent = "Sem conexão";
       $("conexao").classList.add("ruim");
@@ -514,11 +615,12 @@
         tagAfinacao(a.id)
       ].join("");
       return `
-        <div class="aluno ${a.online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""}">
+        <div class="aluno ${a.online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""} ${a.mao ? "mao" : ""}">
           <div class="cab"><span class="ponto"></span><span class="nome" title="${esc(a.nome)}">${esc(a.nome || "Sem nome")}</span></div>
           <div class="email" title="${esc(a.email)}">${esc(a.email || "conta não identificada")}</div>
           <div class="aba" title="${esc(a.aba && a.aba.url)}"><b>Aba:</b> ${esc(aba)}</div>
           <div class="tags">${tags}</div>
+          ${a.mao ? `<div class="mao-card"><span class="mao-ani">✋</span>Mão levantada<button data-action="atenderMao" data-id="${esc(a.id)}">Atender</button></div>` : ""}
           ${cardPergunta(a.id)}
           <div class="botoes">
             ${esperado
@@ -530,12 +632,118 @@
         </div>`;
     }).join("");
 
-    $("grade").innerHTML = html;
+    // só redesenha quando algo mudou: evita piscar e botão "fugindo" do clique
+    if (html !== st.ultimaGrade) { st.ultimaGrade = html; $("grade").innerHTML = html; }
     $("vazio").hidden = lista.length > 0;
     $("cOnline").textContent = on;
     $("cBloq").textContent = bl;
     $("cOff").textContent = off;
   }
+
+  // ---------- linha do tempo e mãos levantadas ----------
+
+  const ICONES_LOG = { mao: "✋", atendeu: "🙌", pesquisa: "📊", resposta: "💬", cronometro: "⏱️", conteudo: "📚", link: "🔗", bloqueio: "🔒", liberou: "🔓", pergunta: "❓", entrou: "👋" };
+
+  async function registrar(tipo, texto) {
+    if (!st.aula) return;
+    const id = novoId();
+    st.log = st.log || {};
+    st.log[id] = { tipo, texto, ts: agoraServidor() };
+    desenharLinhaTempo();
+    fb(`aulas/${st.aula}/log/${id}`, "PUT", { tipo, texto: String(texto).slice(0, 160), ts: { ".sv": "timestamp" } }).catch(() => {});
+  }
+
+  function hora(ts) {
+    const d = new Date(ts - st.offset);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function desenharLinhaTempo() {
+    const itens = Object.values(st.log || {}).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 40);
+    const htmlLt = itens.length
+      ? itens.map((e) => `<li><span class="lt-ico">${ICONES_LOG[e.tipo] || "•"}</span><span>${esc(e.texto)}<small>${hora(e.ts || 0)}</small></span></li>`).join("")
+      : '<li class="lt-vazio">As interações da aula aparecem aqui.</li>';
+    if (htmlLt !== st.ultimaLt) { st.ultimaLt = htmlLt; $("linhaTempo").innerHTML = htmlLt; }
+  }
+
+  function somMao() {
+    try {
+      const ctx = new AudioContext();
+      [0, 0.16].forEach((t, i) => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.frequency.value = i ? 990 : 740;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.22);
+        o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.25);
+      });
+    } catch (e) { /* sem áudio */ }
+  }
+
+  function tremer() {
+    const alvo = $("telaAula");
+    alvo.classList.remove("tremer");
+    void alvo.offsetWidth;
+    alvo.classList.add("tremer");
+  }
+
+  function processarMaos() {
+    const maos = Object.entries(st.alunos).filter(([, a]) => a.mao).sort((x, y) => x[1].mao - y[1].mao);
+    st.maosVistas = st.maosVistas || {};
+    let nova = false;
+    maos.forEach(([id, a]) => {
+      if (st.maosVistas[id] !== a.mao) {
+        st.maosVistas[id] = a.mao;
+        nova = true;
+        if (st.carregouUmaVez) registrar("mao", `${a.nome || "Aluno"} levantou a mão`);
+      }
+    });
+    Object.keys(st.maosVistas).forEach((id) => { if (!st.alunos[id] || !st.alunos[id].mao) delete st.maosVistas[id]; });
+    if (nova && st.carregouUmaVez) { tremer(); somMao(); }
+
+    $("cMaos").textContent = maos.length;
+    $("cMaos").closest(".tile").classList.toggle("ativo", maos.length > 0);
+    const aviso = $("avisoMaos");
+    if (!maos.length) { aviso.hidden = true; aviso.innerHTML = ""; st.ultimoAviso = ""; return; }
+    aviso.hidden = false;
+    const htmlAviso = `<span class="mao-ani">✋</span><span>${maos.length === 1 ? "Um aluno levantou a mão" : maos.length + " alunos levantaram a mão"}</span>
+      <span class="quem">${maos.map(([id, a]) => `<button data-action="atenderMao" data-id="${esc(id)}" title="Marcar como atendido">${esc(a.nome || "Aluno")} · atender</button>`).join("")}</span>`;
+    if (htmlAviso !== st.ultimoAviso) { st.ultimoAviso = htmlAviso; aviso.innerHTML = htmlAviso; }
+  }
+
+  function contarInteracoes() {
+    let n = 0;
+    const af = (st.respostas && st.respostas.afinacao) || {};
+    Object.values(af).forEach((porAluno) => { n += Object.keys(porAluno || {}).length; });
+    const pq = (st.respostas && st.respostas.perguntas) || {};
+    Object.values(pq).forEach((porPergunta) => { n += Object.keys(porPergunta || {}).length; });
+    n += Object.values(st.log || {}).filter((e) => e.tipo === "mao").length;
+    $("cInter").textContent = n;
+  }
+
+  function registrarRespostasNovas() {
+    // transforma respostas novas dos alunos em itens da linha do tempo
+    st.respVistas = st.respVistas || {};
+    const af = (st.respostas && st.respostas.afinacao) || {};
+    const rotulo = { verde: "entendeu", amarelo: "entendeu mais ou menos", vermelho: "não entendeu" };
+    Object.entries(af).forEach(([idP, porAluno]) => Object.entries(porAluno || {}).forEach(([idA, r]) => {
+      const k = "a" + idP + idA;
+      if (!st.respVistas[k]) { st.respVistas[k] = 1; if (st.carregouUmaVez) registrar("resposta", `${r.nome || nomeDe(idA)} ${rotulo[r.valor] || "respondeu"} na pesquisa`); }
+    }));
+    const pq = (st.respostas && st.respostas.perguntas) || {};
+    Object.entries(pq).forEach(([idA, porPergunta]) => Object.entries(porPergunta || {}).forEach(([idP, r]) => {
+      const k = "p" + idP + idA;
+      if (!st.respVistas[k]) { st.respVistas[k] = 1; if (st.carregouUmaVez) registrar("resposta", `${nomeDe(idA)} respondeu: "${String(r.resposta || "").slice(0, 60)}"`); }
+    }));
+  }
+
+  function atualizarDuracao() {
+    if (!st.aula || !st.criadaEm) return;
+    const s = Math.max(0, Math.floor((agoraServidor() - st.criadaEm) / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+    $("duracaoAula").textContent = (h ? h + "h " : "") + String(m).padStart(2, "0") + ":" + String(ss).padStart(2, "0") + " de aula";
+  }
+  setInterval(atualizarDuracao, 1000);
 
   // ---------- regência: Afinação e Compasso ----------
 
@@ -725,6 +933,7 @@
       try { new URL(url); } catch (e) { $("msgLink").textContent = "Endereço inválido."; return; }
       try {
         await enviarLink(st.linkAlvo, url);
+        registrar("link", `Link enviado para ${st.linkAlvo === "todos" ? "a turma" : nomeDe(st.linkAlvo)}: ${url.replace(/^https?:\/\//, "").slice(0, 50)}`);
         $("modalLink").hidden = true;
         toast(st.linkAlvo === "todos" ? "Link enviado para a turma." : `Link enviado para ${nomeDe(st.linkAlvo)}.`);
       } catch (e) {
@@ -735,12 +944,14 @@
     async bloquearTodos() {
       await sinalDeVida();
       await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: true, bloqueio: null });
+      registrar("bloqueio", "Telas da turma bloqueadas");
       toast("Bloqueando todas as telas...");
       atualizar();
     },
 
     async desbloquearTodos() {
       await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: false, bloqueio: null });
+      registrar("liberou", "Telas da turma liberadas");
       toast("Liberando todas as telas...");
       atualizar();
     },
@@ -806,6 +1017,7 @@
       const alvo = $("acervoAlvo").value;
       await enviarLink(alvo, el.dataset.url);
       const quem = alvo === "todos" ? "a turma" : nomeDe(alvo);
+      registrar("conteudo", `${el.dataset.nome} enviado para ${quem}`);
       $("modalAcervo").hidden = true;
       toast(`${el.dataset.nome} enviado para ${quem}.`);
     },
@@ -829,6 +1041,13 @@
       lista.splice(Number(el.dataset.i), 1);
       salvarMeusLinks(lista);
       desenharAcervo();
+    },
+
+    async atenderMao(el) {
+      const id = el.dataset.id;
+      await fb(`aulas/${st.aula}/alunos/${id}/mao`, "DELETE");
+      registrar("atendeu", `Professor atendeu ${nomeDe(id)}`);
+      atualizar();
     },
 
     abrirPergunta(el) {
@@ -862,6 +1081,7 @@
         id: novoId(), texto: texto.slice(0, 300), opcoes, ativa: true, ts: { ".sv": "timestamp" }
       });
       $("modalPergunta").hidden = true;
+      registrar("pergunta", `Pergunta para ${nomeDe(st.pqAlvo)}: "${texto.slice(0, 60)}"`);
       toast(`Pergunta enviada para ${nomeDe(st.pqAlvo)}.`);
       atualizar();
     },
@@ -880,13 +1100,14 @@
       const pergunta = $("afTexto").value.trim() || "Entenderam?";
       await fb(`aulas/${st.aula}/controle/afinacao`, "PUT", { id: novoId(), pergunta: pergunta.slice(0, 140), ativa: true, ts: { ".sv": "timestamp" } });
       $("modalAfinacao").hidden = true;
-      toast("Pergunta enviada para a turma.");
+      registrar("pesquisa", `Pesquisa rápida: "${pergunta.slice(0, 60)}"`);
+      toast("Pesquisa enviada para a turma.");
       atualizar();
     },
 
     async encerrarAfinacao() {
       await fb(`aulas/${st.aula}/controle/afinacao/ativa`, "PUT", false);
-      toast("Afinação encerrada.");
+      toast("Pesquisa encerrada.");
       atualizar();
     },
 
@@ -906,13 +1127,14 @@
         id: novoId(), titulo: titulo.slice(0, 60), inicio: { ".sv": "timestamp" }, duracaoMs: st.cpMin * 60000, ativo: true
       });
       $("modalCompasso").hidden = true;
-      toast(`Compasso de ${st.cpMin} min iniciado.`);
+      registrar("cronometro", `Cronômetro de ${st.cpMin} min: ${titulo}`);
+      toast(`Cronômetro de ${st.cpMin} min iniciado.`);
       atualizar();
     },
 
     async pararCompasso() {
       await fb(`aulas/${st.aula}/controle/compasso/ativo`, "PUT", false);
-      toast("Compasso parado.");
+      toast("Cronômetro parado.");
       atualizar();
     },
 

@@ -26,6 +26,13 @@
   .pill { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; background:#eef5dc; color:var(--lima-esc); }
   .pill.bloq { background:#fde7e5; color:#b3261e; }
   .rodape { margin-top:12px; font-size:11px; color:var(--cinza); text-align:center; word-break:break-all; }
+  .mao { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:12px; padding:14px; font-size:17px; font-weight:800;
+         background:linear-gradient(135deg,#e0a321,#f3c34d); color:#3d2a00; border-radius:12px; }
+  .mao .ico { font-size:26px; }
+  .mao.erguida { background:#fff3d6; color:#6b4b00; box-shadow:inset 0 0 0 2px #e0a321; }
+  .mao.erguida .ico { animation:aceno 1s ease-in-out infinite; transform-origin:70% 90%; }
+  @keyframes aceno { 0%,100% { transform:rotate(-12deg); } 50% { transform:rotate(14deg); } }
+  .dica { font-size:12px; color:var(--cinza); text-align:center; margin-top:6px; min-height:16px; }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -48,6 +55,8 @@
       <div id="nomeAluno"></div>
       <span class="pill" id="pillStatus">Conectado</span>
     </div>
+    <button class="mao" data-action="mao" id="btnMao"><span class="ico">✋</span><span id="txtMao">Levantar a mão</span></button>
+    <div class="dica" id="dicaMao">O professor vê no painel que você quer falar.</div>
     <button class="sec" data-action="sair" id="btnSair">Sair da aula</button>
     <div class="msg" id="msgAula"></div>
   </section>

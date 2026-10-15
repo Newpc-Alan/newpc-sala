@@ -1,4 +1,4 @@
-# Portal Maestro · v0.6.0 (teste de bancada)
+# Portal Maestro · v0.7.0 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
@@ -86,3 +86,11 @@ Emergência sem painel: encerrar ou apagar a aula no Firebase (`aulas/{codigo}`)
 **Tela de bloqueio:** mensagens motivacionais em tela cheia (arte do Portal do Educador), sorteadas a cada bloqueio e trocadas a cada 40 s sem repetir a anterior, com o nome do aluno no canto. Para incluir mensagens: salvar o JPG (16:9, ~1600 px) em `extensao-aluno/bloqueio/` e acrescentar o nome na lista `MENSAGENS` de `bloqueio.js`. Os textos ficam centralizados porque a imagem é recortada nas laterais em telas mais estreitas.
 
 **Pergunta individual:** botão **Perguntar** no card de cada aluno. Resposta livre (até 500 caracteres) ou de 2 a 4 alternativas. Só aquele aluno vê a pergunta (janelinha do Maestro, com aviso sonoro curto) e só o professor vê a resposta, que aparece no próprio card. **Concluir** limpa o card; a resposta fica guardada em `aulas/{codigo}/respostas/perguntas/` para o relatório futuro.
+
+## v0.7.0 · Painel da aula, mão levantada e linguagem do professor
+
+- **Botões em três grupos:** Conduzir a aula (Conteúdos, Enviar link) · Ouvir a turma (Pesquisa rápida, Cronômetro) · Telas dos alunos (Bloquear, Liberar). Nomes em linguagem de professor; "Afinação" virou **Pesquisa rápida** e "Compasso" virou **Cronômetro** em todas as telas.
+- **Painel da aula:** tempo de aula, conectados, mãos levantadas, interações dos alunos e telas bloqueadas.
+- **Mão levantada:** o aluno clica no ícone da extensão → **Levantar a mão**. No painel: aviso no topo com a mão acenando, tremidinha na tela, som curto e card do aluno piscando. **Atender** baixa a mão no Chromebook do aluno.
+- **Linha do tempo:** cada ação do professor e cada resposta/mão do aluno vira um item com horário (`aulas/{codigo}/log`), base do relatório da aula.
+- Painel só redesenha o que mudou (sem piscar e sem botão "fugindo" do clique).

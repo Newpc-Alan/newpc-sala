@@ -1,4 +1,4 @@
-// Portal Maestro · extensão do aluno · v0.6.0
+// Portal Maestro · extensão do aluno · v0.7.0
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -15,6 +15,7 @@
 //   aulas/{codigo}/respostas/afinacao/{idPergunta}/{id}   {valor, nome, ts}
 //   aulas/{codigo}/controle/perguntas/{id}   {id, texto, opcoes|null, ativa}   pergunta individual (só este aluno vê)
 //   aulas/{codigo}/respostas/perguntas/{id}/{idPergunta}  {resposta, ts}
+//   aulas/{codigo}/alunos/{id}/mao           timestamp da mão levantada (o professor apaga ao atender)
 //
 // Política da escola (Google Admin Console → Apps e extensões → esta extensão → Política):
 //   { "entradaObrigatoria": { "Value": true } }
@@ -22,7 +23,7 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.6.0";
+const VERSAO = "0.7.0";
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const PAINEL_SEM_SINAL_MS = 120000; // trava de segurança: sem sinal do painel por 2 min, o bloqueio cai
@@ -269,6 +270,32 @@ async function responderAfinacao(idPergunta, valor) {
   return { ok: true };
 }
 
+// ---------- mão levantada ----------
+
+async function alternarMao() {
+  const st = await chrome.storage.local.get(["aula", "mao", "bloqueado"]);
+  if (!st.aula) return { ok: false, erro: "Você não está numa aula." };
+  const id = await obterDeviceId();
+  const levantar = !st.mao;
+  try {
+    if (levantar) await fb(`aulas/${st.aula}/alunos/${id}/mao`, "PUT", { ".sv": "timestamp" });
+    else await fb(`aulas/${st.aula}/alunos/${id}/mao`, "DELETE");
+  } catch (e) {
+    return { ok: false, erro: "Sem conexão. Tente de novo." };
+  }
+  await chrome.storage.local.set({ mao: levantar });
+  return { ok: true, mao: levantar };
+}
+
+// enquanto a mão estiver levantada, confere se o professor já atendeu
+async function conferirMao() {
+  const st = await chrome.storage.local.get(["aula", "mao"]);
+  if (!st.aula || !st.mao) return;
+  const id = await obterDeviceId();
+  const v = await fb(`aulas/${st.aula}/alunos/${id}/mao`);
+  if (v === null) await chrome.storage.local.set({ mao: false });
+}
+
 async function responderPergunta(idPergunta, resposta) {
   resposta = String(resposta || "").trim().slice(0, 500);
   if (!resposta) return { ok: false, erro: "Escreva sua resposta." };
@@ -375,6 +402,9 @@ async function ciclo() {
       } catch (e) {
         console.warn("[Portal Maestro] Falha nos comandos:", e.message);
       }
+      try {
+        await conferirMao();
+      } catch (e) { /* tenta de novo na próxima volta */ }
       if (volta % HEARTBEAT_A_CADA === 0) {
         try {
           await enviarPresenca();
@@ -412,7 +442,7 @@ async function entrarNaAula(codigo, nome) {
   if (aula.controle && aula.controle.comando) antigos.push(aula.controle.comando.id);
   if (aula.controle && aula.controle.comandos && aula.controle.comandos[id]) antigos.push(aula.controle.comandos[id].id);
 
-  await chrome.storage.local.set({ aula: codigo, nome: String(nome).trim().slice(0, 60), executados: antigos, bloqueado: false });
+  await chrome.storage.local.set({ aula: codigo, nome: String(nome).trim().slice(0, 60), executados: antigos, bloqueado: false, mao: false });
   await enviarPresenca().catch(() => {});
   ciclo();
   return { ok: true, professor: aula.professor || "" };
@@ -424,7 +454,7 @@ async function sairDaAula(avisarServidor) {
   if (avisarServidor && st.aula) {
     await fb(`aulas/${st.aula}/alunos/${id}`, "DELETE").catch(() => {});
   }
-  await chrome.storage.local.set({ aula: null, bloqueado: false, executados: [], regencia: { afinacao: null, compasso: null, pergunta: null } });
+  await chrome.storage.local.set({ aula: null, bloqueado: false, executados: [], regencia: { afinacao: null, compasso: null, pergunta: null }, mao: false });
   await fecharTela(URL_BLOQUEIO);
   await fecharTela(URL_REGENCIA);
   await chrome.action.setBadgeText({ text: "" });
@@ -437,6 +467,7 @@ chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
     if (msg.tipo === "entrar") return entrarNaAula(msg.aula, msg.nome);
     if (msg.tipo === "afinacao") return responderAfinacao(msg.id, msg.valor);
     if (msg.tipo === "pergunta") return responderPergunta(msg.id, msg.resposta);
+    if (msg.tipo === "mao") return alternarMao();
     if (msg.tipo === "sair") {
       const st = await estado();
       if (st.bloqueado) return { ok: false, erro: "Tela bloqueada pelo professor." };
@@ -447,7 +478,8 @@ chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
       const st = await estado();
       return {
         ok: true, aula: st.aula || null, nome: st.nome || "", bloqueado: !!st.bloqueado,
-        email: await obterEmail(), obrigatoria: await entradaObrigatoria()
+        email: await obterEmail(), obrigatoria: await entradaObrigatoria(),
+        mao: !!(await chrome.storage.local.get("mao")).mao
       };
     }
     return { ok: false, erro: "Mensagem desconhecida." };
