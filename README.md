@@ -94,3 +94,13 @@ Emergência sem painel: encerrar ou apagar a aula no Firebase (`aulas/{codigo}`)
 - **Mão levantada:** o aluno clica no ícone da extensão → **Levantar a mão**. No painel: aviso no topo com a mão acenando, tremidinha na tela, som curto e card do aluno piscando. **Atender** baixa a mão no Chromebook do aluno.
 - **Linha do tempo:** cada ação do professor e cada resposta/mão do aluno vira um item com horário (`aulas/{codigo}/log`), base do relatório da aula.
 - Painel só redesenha o que mudou (sem piscar e sem botão "fugindo" do clique).
+
+## Página do aluno para Android e tablets (`/aluno/`)
+
+Endereço: **https://sala.portaldoeducador.com.br/aluno/** (link direto com o número: `/aluno/?aula=123456`).
+
+- Para tablets e celulares Android, onde o Chrome não aceita extensões. Funciona em qualquer navegador.
+- Usa o mesmo painel do professor e a mesma estrutura do banco que a extensão: conteúdos, pesquisa rápida, cronômetro, pergunta individual, mão levantada, bloqueio com mensagens e trava de segurança.
+- Instalável na tela inicial (abre em tela cheia). A tela fica acesa durante a aula.
+- O professor vê no card quando o aluno sai da página ("⚠ Saiu da página do Maestro").
+- Limite: o controle vale dentro desta página. Para prender o tablet nela, use o modo quiosque do gerenciador de dispositivos (Google Admin / Android Enterprise, Samsung Knox, Hexnode).
