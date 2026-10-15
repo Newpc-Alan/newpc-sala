@@ -1,4 +1,4 @@
-# Portal Maestro · v0.5.2 (teste de bancada)
+# Portal Maestro · v0.6.0 (teste de bancada)
 
 **Portal Maestro · O professor conduz, a turma acompanha.** Sala de aula gerenciada do Portal do Educador (NEWPC).
 
@@ -80,3 +80,9 @@ O bloqueio de tela só vale enquanto o painel do professor está vivo. O painel 
 Emergência sem painel: encerrar ou apagar a aula no Firebase (`aulas/{codigo}`) libera todos em até 3 s.
 - **v0.5.2:** o bloqueio nunca sobrevive a um reinício do Chrome (só volta se o painel confirmar em até 3 s), e a extensão nunca fecha a última aba de uma janela. Corrige o caso em que o Chrome abria e fechava sozinho.
 - **Saída de emergência no Windows:** fechar o Chrome, `Windows+R` → `chrome --disable-extensions`, abrir o perfil e remover a extensão em `chrome://extensions`.
+
+## v0.6.0 · Tela de bloqueio motivacional e Pergunta individual
+
+**Tela de bloqueio:** mensagens motivacionais em tela cheia (arte do Portal do Educador), sorteadas a cada bloqueio e trocadas a cada 40 s sem repetir a anterior, com o nome do aluno no canto. Para incluir mensagens: salvar o JPG (16:9, ~1600 px) em `extensao-aluno/bloqueio/` e acrescentar o nome na lista `MENSAGENS` de `bloqueio.js`. Os textos ficam centralizados porque a imagem é recortada nas laterais em telas mais estreitas.
+
+**Pergunta individual:** botão **Perguntar** no card de cada aluno. Resposta livre (até 500 caracteres) ou de 2 a 4 alternativas. Só aquele aluno vê a pergunta (janelinha do Maestro, com aviso sonoro curto) e só o professor vê a resposta, que aparece no próprio card. **Concluir** limpa o card; a resposta fica guardada em `aulas/{codigo}/respostas/perguntas/` para o relatório futuro.

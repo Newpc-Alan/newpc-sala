@@ -105,6 +105,19 @@
   .reg-tempo.fim { color:var(--vermelho); }
   .reg-barra { height:8px; border-radius:6px; background:#e6ebf0; overflow:hidden; }
   .reg-barra i { display:block; height:100%; background:linear-gradient(90deg,var(--ciano),var(--lima)); }
+  .aluno .botoes { flex-wrap:wrap; }
+  .pq-card { border:1px solid #cfe3a3; background:#f6faec; border-radius:10px; padding:8px 10px; font-size:12.5px; display:flex; flex-direction:column; gap:4px; }
+  .pq-card .pq-l { color:var(--cinza); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+  .pq-card .pq-t { color:var(--azul); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .pq-card .pq-r { color:#2f4a0f; font-weight:700; background:#fff; border-radius:7px; padding:5px 7px; white-space:pre-wrap; word-break:break-word; max-height:96px; overflow:auto; }
+  .pq-card .pq-esp { color:#8a6100; font-weight:600; }
+  .pq-card .pq-rod { display:flex; justify-content:flex-end; }
+  .pq-card .pq-rod button { border:0; background:none; color:var(--cinza); font:inherit; font-size:12px; font-weight:700; cursor:pointer; padding:0; }
+  .modal textarea { width:100%; min-height:80px; resize:vertical; padding:10px 12px; border:1px solid var(--borda); border-radius:9px; font:inherit; color:var(--azul); }
+  .modal textarea:focus { outline:2px solid var(--ciano); outline-offset:1px; }
+  .alternativas { display:grid; gap:6px; margin-top:6px; }
+  .alternativas div { display:flex; gap:8px; align-items:center; }
+  .alternativas b { width:24px; height:24px; flex:none; border-radius:50%; background:var(--azul); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; }
   .tag.afv { background:#eef5dc; color:#557a1f; } .tag.afa { background:#fff3d6; color:#8a6100; } .tag.afr { background:var(--vermelho-claro); color:var(--vermelho); }
 
   /* ---- acervo ---- */
@@ -268,6 +281,32 @@
     <div class="rodape">
       <button class="btn sec" data-action="fecharModal">Cancelar</button>
       <button class="btn" data-action="iniciarCompasso">Iniciar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERGUNTA INDIVIDUAL -->
+<div class="modal-fundo" id="modalPergunta" hidden>
+  <div class="modal">
+    <h3>Pergunta para <span id="pqNomeAluno">o aluno</span></h3>
+    <p>Só este aluno vê a pergunta, e só você vê a resposta.</p>
+    <label for="pqTextoProf">Pergunta</label>
+    <textarea id="pqTextoProf" maxlength="300" placeholder="Ex.: Em qual fase a Lua fica totalmente iluminada?"></textarea>
+    <label>Tipo de resposta</label>
+    <div class="chips" id="pqModos">
+      <button class="chip ativo" data-action="modoPergunta" data-modo="livre">Resposta livre</button>
+      <button class="chip" data-action="modoPergunta" data-modo="opcoes">Alternativas</button>
+    </div>
+    <div class="alternativas" id="pqAlternativas" hidden>
+      <div><b>A</b><input type="text" class="pq-op" maxlength="80"></div>
+      <div><b>B</b><input type="text" class="pq-op" maxlength="80"></div>
+      <div><b>C</b><input type="text" class="pq-op" maxlength="80" placeholder="opcional"></div>
+      <div><b>D</b><input type="text" class="pq-op" maxlength="80" placeholder="opcional"></div>
+    </div>
+    <div class="msg erro" id="msgPergunta"></div>
+    <div class="rodape">
+      <button class="btn sec" data-action="fecharModal">Cancelar</button>
+      <button class="btn" data-action="enviarPerguntaIndividual">Enviar pergunta</button>
     </div>
   </div>
 </div>
@@ -480,11 +519,13 @@
           <div class="email" title="${esc(a.email)}">${esc(a.email || "conta não identificada")}</div>
           <div class="aba" title="${esc(a.aba && a.aba.url)}"><b>Aba:</b> ${esc(aba)}</div>
           <div class="tags">${tags}</div>
+          ${cardPergunta(a.id)}
           <div class="botoes">
             ${esperado
               ? `<button class="btn sec peq" data-action="desbloquearUm" data-id="${esc(a.id)}">Desbloquear</button>`
               : `<button class="btn alerta peq" data-action="bloquearUm" data-id="${esc(a.id)}">Bloquear</button>`}
             <button class="btn sec peq" data-action="abrirModalLink" data-alvo="${esc(a.id)}">Enviar link</button>
+            <button class="btn sec peq" data-action="abrirPergunta" data-id="${esc(a.id)}">Perguntar</button>
           </div>
         </div>`;
     }).join("");
@@ -554,6 +595,23 @@
     $("cpBarra").style.width = Math.max(0, Math.min(100, (resta / c.duracaoMs) * 100)) + "%";
   }
   setInterval(tickCompasso, 500);
+
+  // ---------- pergunta individual ----------
+
+  function cardPergunta(id) {
+    const pq = st.controle.perguntas ? st.controle.perguntas[id] : null;
+    if (!pq || !pq.id) return "";
+    const r = st.respostas.perguntas && st.respostas.perguntas[id] ? st.respostas.perguntas[id][pq.id] : null;
+    const corpo = r
+      ? `<div class="pq-r">${esc(r.resposta)}</div>`
+      : `<div class="pq-esp">Aguardando resposta...</div>`;
+    return `<div class="pq-card">
+        <span class="pq-l">Pergunta individual</span>
+        <span class="pq-t" title="${esc(pq.texto)}">${esc(pq.texto)}</span>
+        ${corpo}
+        <div class="pq-rod"><button data-action="limparPergunta" data-id="${esc(id)}">${r ? "Concluir" : "Cancelar pergunta"}</button></div>
+      </div>`;
+  }
 
   // ---------- acervo ----------
 
@@ -773,6 +831,46 @@
       desenharAcervo();
     },
 
+    abrirPergunta(el) {
+      st.pqAlvo = el.dataset.id;
+      st.pqModo = "livre";
+      $("pqNomeAluno").textContent = nomeDe(st.pqAlvo);
+      $("pqTextoProf").value = "";
+      document.querySelectorAll(".pq-op").forEach((i) => { i.value = ""; });
+      document.querySelectorAll("#pqModos .chip").forEach((c) => c.classList.toggle("ativo", c.dataset.modo === "livre"));
+      $("pqAlternativas").hidden = true;
+      $("msgPergunta").textContent = "";
+      $("modalPergunta").hidden = false;
+      $("pqTextoProf").focus();
+    },
+
+    modoPergunta(el) {
+      st.pqModo = el.dataset.modo;
+      document.querySelectorAll("#pqModos .chip").forEach((c) => c.classList.toggle("ativo", c === el));
+      $("pqAlternativas").hidden = st.pqModo !== "opcoes";
+    },
+
+    async enviarPerguntaIndividual() {
+      const texto = $("pqTextoProf").value.trim();
+      if (!texto) { $("msgPergunta").textContent = "Escreva a pergunta."; return; }
+      let opcoes = null;
+      if (st.pqModo === "opcoes") {
+        opcoes = [...document.querySelectorAll(".pq-op")].map((i) => i.value.trim()).filter(Boolean);
+        if (opcoes.length < 2) { $("msgPergunta").textContent = "Preencha pelo menos as alternativas A e B."; return; }
+      }
+      await fb(`aulas/${st.aula}/controle/perguntas/${st.pqAlvo}`, "PUT", {
+        id: novoId(), texto: texto.slice(0, 300), opcoes, ativa: true, ts: { ".sv": "timestamp" }
+      });
+      $("modalPergunta").hidden = true;
+      toast(`Pergunta enviada para ${nomeDe(st.pqAlvo)}.`);
+      atualizar();
+    },
+
+    async limparPergunta(el) {
+      await fb(`aulas/${st.aula}/controle/perguntas/${el.dataset.id}`, "DELETE");
+      atualizar();
+    },
+
     abrirAfinacao() {
       $("modalAfinacao").hidden = false;
       $("afTexto").select();
@@ -819,7 +917,7 @@
     },
 
     fecharModal() {
-      ["modalLink", "modalConfirmar", "modalAcervo", "modalAfinacao", "modalCompasso"].forEach((m) => { $(m).hidden = true; });
+      ["modalLink", "modalConfirmar", "modalAcervo", "modalAfinacao", "modalCompasso", "modalPergunta"].forEach((m) => { $(m).hidden = true; });
       st.acaoPendente = null;
     }
   };

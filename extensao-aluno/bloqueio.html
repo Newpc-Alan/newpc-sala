@@ -4,30 +4,21 @@
 <meta charset="utf-8">
 <title>Atenção ao professor</title>
 <style>
-  html, body { margin:0; height:100%; }
-  body { display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center;
-         background:radial-gradient(circle at 50% 40%, #16406b 0%, #0f2c4a 60%, #05091a 100%);
-         color:#fff; font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif; user-select:none; cursor:default; }
-  .icone { width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,#3ea8ce,#a6c544); display:flex; align-items:center; justify-content:center;
-           box-shadow:0 0 0 14px rgba(62,168,206,.22); margin-bottom:36px; }
-  .icone svg { width:56px; height:56px; }
-  h1 { font-size:clamp(28px,5vw,52px); margin:0 0 12px; font-weight:700; }
-  p { font-size:clamp(16px,2.2vw,22px); margin:0; opacity:.85; }
-  #nome { margin-top:28px; font-size:18px; opacity:.7; }
-  .marca { position:fixed; bottom:20px; display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:1px; opacity:.75; }
-  .marca img { width:34px; height:34px; }
+  html, body { margin:0; height:100%; overflow:hidden; }
+  body { background:#dbeaf7; font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif; user-select:none; cursor:default; }
+  /* duas camadas para a troca suave entre mensagens */
+  .camada { position:fixed; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity 1.2s ease; }
+  .camada.visivel { opacity:1; }
+  .nome { position:fixed; top:18px; left:18px; z-index:2; display:none; align-items:center; gap:8px;
+          background:rgba(255,255,255,.88); color:#0F2C4A; font-size:15px; font-weight:700;
+          padding:8px 14px; border-radius:30px; box-shadow:0 4px 14px rgba(15,44,74,.18); }
+  .nome::before { content:""; width:9px; height:9px; border-radius:50%; background:#3ea8ce; }
 </style>
 </head>
 <body>
-  <div class="icone">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-    </svg>
-  </div>
-  <h1>Atenção ao professor</h1>
-  <p>Sua tela foi pausada. Ela volta assim que o professor liberar.</p>
-  <div id="nome"></div>
-  <div class="marca"><img src="icons/pde-96.png" alt="">PORTAL MAESTRO · PORTAL DO EDUCADOR</div>
+  <div class="camada" id="camadaA"></div>
+  <div class="camada" id="camadaB"></div>
+  <div class="nome" id="nome"></div>
 <script src="bloqueio.js"></script>
 </body>
 </html>
