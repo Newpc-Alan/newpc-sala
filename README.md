@@ -104,3 +104,20 @@ Endereço: **https://sala.portaldoeducador.com.br/aluno/** (link direto com o n�
 - Instalável na tela inicial (abre em tela cheia). A tela fica acesa durante a aula.
 - O professor vê no card quando o aluno sai da página ("⚠ Saiu da página do Maestro").
 - Limite: o controle vale dentro desta página. Para prender o tablet nela, use o modo quiosque do gerenciador de dispositivos (Google Admin / Android Enterprise, Samsung Knox, Hexnode).
+
+## v0.8.0 · painel mais simples e confiável (out/2026)
+
+**Professor**
+- Ações para a turma toda separadas das ações "Só para este aluno" em cada card.
+- "Enviar conteúdo" único: colar um link ou escolher no acervo, com o destino sempre à vista (turma, um aluno ou alunos selecionados).
+- Turma com busca por nome, filtros com contagem (conectados, mão levantada, pausados, sem resposta, desconectados) e seleção de vários alunos (enviar, pausar e liberar só para eles). A seleção não se perde nas atualizações.
+- Enviado x abriu: faixa "Abriu em X de Y" e etiqueta no card ("Abriu o conteúdo", "Aguardando abrir", "Não abriu").
+- "Bloquear" passou a se chamar "Pausar" (no tablet e no Windows a pausa vale dentro do app ou do Chrome).
+- Sem internet: faixa "Tentando reconectar" e mensagens de erro em português. Botões ficam ocupados durante o envio (sem comando duplicado por clique duplo). Recarregar a página retoma a aula aberta.
+
+**Aluno (extensão 0.8.0 e página /aluno/ web-1.1.0)**
+- Confirmam ao painel quando abrem um conteúdo (`alunos/{id}/ultimoCmd`) e registram a hora de entrada (`entrouEm`).
+- Ordens com mais de 2 minutos não são executadas (aluno que voltou de uma queda de rede não abre link antigo).
+- Página do aluno: aviso "Nova atividade do professor", até 3 atividades abertas sem perder o progresso (abas para alternar) e tela de atenção que não diz que o aparelho inteiro está bloqueado.
+
+Compatibilidade: o painel continua funcionando com a extensão 0.7.0; nela a confirmação "Abriu" vem da aba ativa do aluno (menos precisa). Atualize a extensão nos Chromebooks para a confirmação exata.

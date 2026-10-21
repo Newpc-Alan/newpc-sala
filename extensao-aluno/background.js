@@ -1,4 +1,4 @@
-// Portal Maestro · extensão do aluno · v0.7.0
+// Portal Maestro · extensão do aluno · v0.8.0
 // Service worker: liga o dispositivo à aula, envia presença e executa os comandos do professor.
 //
 // Estrutura no Realtime Database (projeto newpc-sala):
@@ -16,6 +16,8 @@
 //   aulas/{codigo}/controle/perguntas/{id}   {id, texto, opcoes|null, ativa}   pergunta individual (só este aluno vê)
 //   aulas/{codigo}/respostas/perguntas/{id}/{idPergunta}  {resposta, ts}
 //   aulas/{codigo}/alunos/{id}/mao           timestamp da mão levantada (o professor apaga ao atender)
+//   aulas/{codigo}/alunos/{id}/ultimoCmd     {id, ts} confirmação de que o comando foi executado (v0.8)
+//   aulas/{codigo}/alunos/{id}/entrouEm      hora em que o aluno entrou (o painel não espera comandos anteriores) (v0.8)
 //
 // Política da escola (Google Admin Console → Apps e extensões → esta extensão → Política):
 //   { "entradaObrigatoria": { "Value": true } }
@@ -23,7 +25,8 @@
 //   false → a tela de entrada abre ao ligar, mas o aluno pode fechar (padrão)
 
 const FIREBASE_URL = "https://newpc-sala-default-rtdb.firebaseio.com";
-const VERSAO = "0.7.0";
+const VERSAO = "0.8.0";
+const VALIDADE_COMANDO_MS = 120000; // ordem com mais de 2 min (ex.: aluno voltou de uma queda de rede) não é executada
 const INTERVALO_MS = 3000;          // consulta de comandos
 const HEARTBEAT_A_CADA = 5;         // presença a cada 5 ciclos (15 s)
 const PAINEL_SEM_SINAL_MS = 120000; // trava de segurança: sem sinal do painel por 2 min, o bloqueio cai
@@ -120,9 +123,21 @@ async function executarComando(cmd) {
   if ((st.executados || []).includes(cmd.id)) return;
   await marcarExecutado(cmd.id);
 
+  // ordem antiga (aluno reconectou depois de muito tempo): não executa
+  const offset = (await chrome.storage.local.get("offset")).offset || 0;
+  if (typeof cmd.ts === "number" && Date.now() + offset - cmd.ts > VALIDADE_COMANDO_MS) {
+    console.log("[Portal Maestro] Comando antigo ignorado:", cmd.id);
+    return;
+  }
+
   if (cmd.tipo === "abrirLink" && /^https?:\/\//i.test(cmd.url || "")) {
     await chrome.tabs.create({ url: cmd.url, active: true });
     console.log("[Portal Maestro] Link aberto:", cmd.url);
+    // confirma ao painel que abriu (o professor vê "Abriu o conteúdo")
+    try {
+      const id = await obterDeviceId();
+      await fb(`aulas/${st.aula}/alunos/${id}`, "PATCH", { ultimoCmd: { id: cmd.id, ts: { ".sv": "timestamp" } } });
+    } catch (e) { /* a presença seguinte mostra a aba aberta */ }
   }
 }
 
@@ -444,6 +459,7 @@ async function entrarNaAula(codigo, nome) {
 
   await chrome.storage.local.set({ aula: codigo, nome: String(nome).trim().slice(0, 60), executados: antigos, bloqueado: false, mao: false });
   await enviarPresenca().catch(() => {});
+  await fb(`aulas/${codigo}/alunos/${id}`, "PATCH", { entrouEm: { ".sv": "timestamp" } }).catch(() => {});
   ciclo();
   return { ok: true, professor: aula.professor || "" };
 }
@@ -470,7 +486,7 @@ chrome.runtime.onMessage.addListener((msg, _remetente, responder) => {
     if (msg.tipo === "mao") return alternarMao();
     if (msg.tipo === "sair") {
       const st = await estado();
-      if (st.bloqueado) return { ok: false, erro: "Tela bloqueada pelo professor." };
+      if (st.bloqueado) return { ok: false, erro: "Tela pausada pelo professor." };
       await sairDaAula(true);
       return { ok: true };
     }

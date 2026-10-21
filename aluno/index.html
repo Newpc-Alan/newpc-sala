@@ -67,7 +67,15 @@
   .barra-conteudo { display:flex; align-items:center; gap:8px; padding:8px 10px; background:#fff; border-bottom:1px solid var(--borda); }
   .barra-conteudo .tit { flex:1; min-width:0; font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .barra-conteudo button { border:1px solid var(--borda); background:var(--fundo); color:var(--azul); border-radius:9px; padding:7px 10px; font-size:13px; font-weight:700; white-space:nowrap; }
-  #quadro { flex:1; width:100%; border:0; background:#fff; }
+  #quadros { flex:1; position:relative; }
+  #quadros iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#fff; }
+  .abas-atv { display:flex; gap:6px; padding:6px 10px; background:var(--fundo); border-bottom:1px solid var(--borda); overflow-x:auto; }
+  .abas-atv button { flex:none; border:1px solid var(--borda); background:#fff; color:var(--azul); border-radius:20px; padding:5px 12px; font-size:13px; font-weight:700; }
+  .abas-atv button.ativa { background:var(--azul); color:#fff; border-color:var(--azul); }
+  #espera .prof { font-weight:700; color:var(--azul); }
+  #espera .dicas { margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:14px; color:var(--cinza); }
+  #bloqueio .faixa { position:absolute; left:50%; bottom:22px; transform:translateX(-50%); z-index:2; background:rgba(15,44,74,.9); color:#fff; padding:10px 18px; border-radius:30px; font-weight:700; font-size:15px; text-align:center; max-width:calc(100% - 32px); }
+  #chegou { position:absolute; left:50%; top:14px; transform:translateX(-50%); z-index:7; display:flex; align-items:center; gap:10px; background:var(--lima); color:#05091a; padding:10px 18px; border-radius:14px; font-weight:800; font-size:16px; box-shadow:0 10px 30px rgba(5,9,26,.35); animation:sobe .35s ease-out; max-width:calc(100% - 32px); }
 
   /* cronômetro da atividade */
   #chipTempo { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:5; min-width:180px;
@@ -115,6 +123,8 @@
   #bloqueio { position:fixed; inset:0; z-index:50; background:#dbeaf7; user-select:none; touch-action:none; }
   #bloqueio .camada { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity 1.2s ease; }
   #bloqueio .camada.visivel { opacity:1; }
+  /* tablet em pé: mostra a arte inteira, sem cortar a frase */
+  @media (orientation:portrait) { #bloqueio .camada { background-size:contain; background-repeat:no-repeat; } }
   #bloqueio .nome { position:absolute; top:18px; left:18px; z-index:2; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.88);
                     color:#0F2C4A; font-size:15px; font-weight:700; padding:8px 14px; border-radius:30px; box-shadow:0 4px 14px rgba(15,44,74,.18); }
   #bloqueio .nome::before { content:""; width:9px; height:9px; border-radius:50%; background:#3ea8ce; }
@@ -176,7 +186,9 @@
     <div id="espera">
       <div class="onda"><img src="icons/aluno-192.png" alt=""></div>
       <h2>Você está na aula</h2>
-      <p>Fique nesta tela. O que o professor enviar vai aparecer aqui.</p>
+      <p class="prof" id="esperaProf"></p>
+      <p>Fique nesta tela. Quando o professor enviar uma atividade, ela abre aqui sozinha.</p>
+      <div class="dicas"><span>✋ Quer falar? Toque em <b>Levantar a mão</b>.</span></div>
     </div>
 
     <div id="conteudo" hidden>
@@ -185,8 +197,11 @@
         <button data-action="abrirFora" title="Use se a página não carregar aqui">↗ Abrir fora</button>
         <button data-action="fecharConteudo">✕ Fechar</button>
       </div>
-      <iframe id="quadro" title="Conteúdo enviado pelo professor" allow="xr-spatial-tracking; fullscreen; autoplay; accelerometer; gyroscope" allowfullscreen></iframe>
+      <div class="abas-atv" id="abasAtv" hidden></div>
+      <div id="quadros"></div>
     </div>
+
+    <div id="chegou" role="status" hidden></div>
 
     <div id="chipTempo" hidden>
       <div class="t" id="tempoTitulo">Atividade</div>
@@ -228,6 +243,7 @@
   <div class="camada" id="camadaA"></div>
   <div class="camada" id="camadaB"></div>
   <div class="nome" id="bloqNome">Aluno</div>
+  <div class="faixa">Atenção ao professor · sua atividade continua aqui depois</div>
 </div>
 
 <div id="menu" hidden>
@@ -250,7 +266,7 @@
    Limite desta versão: o controle vale dentro desta página. Para travar o tablet nela, use o modo quiosque do gerenciador. */
 (function () {
   "use strict";
-  const VERSAO = "web-1.0.1";
+  const VERSAO = "web-1.1.0";
   const INTERVALO_MS = 3000;
   const HEARTBEAT_A_CADA = 5;          // presença a cada 15 s
   const PAINEL_SEM_SINAL_MS = 120000;  // trava de segurança, igual à extensão
@@ -279,7 +295,9 @@
   const ANDROID = /Android/i.test(navigator.userAgent);
 
   // ---------- estado guardado no aparelho ----------
-  let S = { deviceId: "", aula: null, nome: "", executados: [], afinacaoRespondida: null, perguntaRespondida: null, mao: false, offset: 0, conteudo: null };
+  let S = { deviceId: "", aula: null, nome: "", professor: "", executados: [], afinacaoRespondida: null, perguntaRespondida: null, mao: false, offset: 0, conteudo: null, atividades: [] };
+  const MAX_ATIVIDADES = 3;           // atividades mantidas abertas (preserva o progresso ao trocar)
+  const VALIDADE_COMANDO_MS = 120000; // ordem com mais de 2 min não é executada (aluno que voltou de uma queda)
   function carregar() {
     try { Object.assign(S, JSON.parse(localStorage.getItem(CHAVE) || "{}")); } catch (e) { /* sem armazenamento: segue em memória */ }
     if (!S.deviceId) {
@@ -370,7 +388,7 @@
   // ---------- presença ----------
   let foraDaPagina = false;
   function abaAtual() {
-    if (S.bloqueado) return { titulo: "🔒 Tela bloqueada", url: "" };
+    if (S.bloqueado) return { titulo: "⏸️ Tela pausada (no app do aluno)", url: "" };
     if (foraDaPagina) return { titulo: "⚠ Saiu da página do Maestro", url: "" };
     if (S.conteudo) return { titulo: nomeDoLink(S.conteudo).slice(0, 120), url: S.conteudo.slice(0, 300) };
     return { titulo: "Na aula · aguardando o professor", url: "" };
@@ -393,21 +411,71 @@
   }
 
   // ---------- conteúdo enviado pelo professor ----------
-  function abrirConteudo(url) {
-    S.conteudo = url; salvar();
+  // Cada atividade fica no seu próprio quadro: trocar de atividade não apaga o progresso da anterior.
+  function quadroDe(url) {
+    return [...$("quadros").querySelectorAll("iframe")].find((f) => f.dataset.url === url) || null;
+  }
+  function criarQuadro(url) {
+    const f = document.createElement("iframe");
+    f.dataset.url = url;
+    f.title = "Atividade enviada pelo professor";
+    f.setAttribute("allow", "xr-spatial-tracking; fullscreen; autoplay; accelerometer; gyroscope");
+    f.setAttribute("allowfullscreen", "");
+    f.src = paraQuadro(url);
+    $("quadros").appendChild(f);
+    return f;
+  }
+  function desenharAbas() {
+    const lista = S.atividades || [];
+    $("abasAtv").hidden = lista.length < 2;
+    $("abasAtv").textContent = "";
+    lista.forEach((url) => {
+      const b = document.createElement("button");
+      b.dataset.action = "trocarAtividade";
+      b.dataset.url = url;
+      b.textContent = nomeDoLink(url);
+      if (url === S.conteudo) b.className = "ativa";
+      $("abasAtv").appendChild(b);
+    });
+  }
+  function mostrarAtividade(url) {
+    S.conteudo = url;
+    S.atividades = [url].concat((S.atividades || []).filter((u) => u !== url));
+    // limita as atividades abertas e descarta as mais antigas
+    S.atividades.slice(MAX_ATIVIDADES).forEach((u) => { const f = quadroDe(u); if (f) f.remove(); });
+    S.atividades = S.atividades.slice(0, MAX_ATIVIDADES);
+    salvar();
+    const ativo = quadroDe(url) || criarQuadro(url);
+    $("quadros").querySelectorAll("iframe").forEach((f) => { f.hidden = f !== ativo; });
     $("conteudoTitulo").textContent = nomeDoLink(url);
-    const alvo = paraQuadro(url);
-    if ($("quadro").getAttribute("src") !== alvo) $("quadro").setAttribute("src", alvo);
     $("conteudo").hidden = false;
     $("espera").hidden = true;
-    vibrar(60);
+    desenharAbas();
+  }
+  let chegouTimer = null;
+  function abrirConteudo(url, doProfessor) {
+    mostrarAtividade(url);
+    if (doProfessor) {
+      const el = $("chegou");
+      el.textContent = "📚 Nova atividade do professor: " + nomeDoLink(url);
+      el.hidden = false;
+      clearTimeout(chegouTimer);
+      chegouTimer = setTimeout(() => { el.hidden = true; }, 4500);
+      vibrar([60, 40, 60]);
+      bipe([0, 0.15]);
+    }
     enviarPresenca().catch(() => {});
   }
   function fecharConteudo() {
+    const atual = S.conteudo;
+    const f = quadroDe(atual);
+    if (f) f.remove();
+    S.atividades = (S.atividades || []).filter((u) => u !== atual);
+    if (S.atividades.length) { mostrarAtividade(S.atividades[0]); enviarPresenca().catch(() => {}); return; }
     S.conteudo = null; salvar();
-    $("quadro").setAttribute("src", "about:blank");
     $("conteudo").hidden = true;
     $("espera").hidden = false;
+    desenharAbas();
     enviarPresenca().catch(() => {});
   }
 
@@ -415,7 +483,13 @@
     if (!cmd || !cmd.id || S.executados.includes(cmd.id)) return;
     S.executados = S.executados.concat(cmd.id).slice(-30);
     salvar();
-    if (cmd.tipo === "abrirLink" && /^https?:\/\//i.test(cmd.url || "")) abrirConteudo(cmd.url);
+    // ordem antiga (o aluno voltou depois de muito tempo sem conexão): não executa
+    if (typeof cmd.ts === "number" && Date.now() + (S.offset || 0) - cmd.ts > VALIDADE_COMANDO_MS) return;
+    if (cmd.tipo === "abrirLink" && /^https?:\/\//i.test(cmd.url || "")) {
+      abrirConteudo(cmd.url, true);
+      // confirma ao painel que a atividade abriu
+      fb(`aulas/${S.aula}/alunos/${S.deviceId}`, "PATCH", { ultimoCmd: { id: cmd.id, ts: { ".sv": "timestamp" } } }).catch(() => {});
+    }
   }
 
   // ---------- bloqueio ----------
@@ -623,7 +697,8 @@
     $("topoAula").textContent = S.aula;
     $("menuAula").textContent = S.aula;
     desenharMao();
-    if (S.conteudo) abrirConteudo(S.conteudo); else { $("conteudo").hidden = true; $("espera").hidden = false; }
+    $("esperaProf").textContent = S.professor ? "Aula de " + S.professor : "";
+    if (S.conteudo) mostrarAtividade(S.conteudo); else { $("conteudo").hidden = true; $("espera").hidden = false; desenharAbas(); }
     try { history.pushState({ maestro: 1 }, ""); } catch (e) { /* ignora */ }
     manterAcesa();
   }
@@ -657,12 +732,13 @@
     const antigos = [];
     if (c.comando && c.comando.id) antigos.push(c.comando.id);
     if (c.comandos && c.comandos[S.deviceId]) antigos.push(c.comandos[S.deviceId].id);
-    Object.assign(S, { aula: codigo, nome, executados: antigos, bloqueado: false, mao: false, conteudo: null, afinacaoRespondida: null, perguntaRespondida: null });
+    Object.assign(S, { aula: codigo, nome, professor: String(aula.professor || "").slice(0, 60), executados: antigos, bloqueado: false, mao: false, conteudo: null, atividades: [], afinacaoRespondida: null, perguntaRespondida: null });
     salvar();
     msgEntrar("");
     mostrarAula();
     volta = 0;
     try { await enviarPresenca(); } catch (e) { /* o ciclo tenta de novo */ }
+    fb(`aulas/${S.aula}/alunos/${S.deviceId}`, "PATCH", { entrouEm: { ".sv": "timestamp" } }).catch(() => {});
     volta = 1;
     ciclo();
   }
@@ -670,9 +746,9 @@
   function limparAula() {
     clearTimeout(cicloTimer);
     clearInterval(trocaTimer);
-    Object.assign(S, { aula: null, bloqueado: false, mao: false, conteudo: null, executados: [] });
+    Object.assign(S, { aula: null, bloqueado: false, mao: false, conteudo: null, atividades: [], executados: [] });
     salvar();
-    $("quadro").setAttribute("src", "about:blank");
+    $("quadros").textContent = "";
     $("folhaPesquisa").hidden = true; $("folhaPergunta").hidden = true; $("chipTempo").hidden = true;
     pesqId = pqId = comp = compId = null;
     if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
@@ -695,6 +771,7 @@
     mao: alternarMao,
     fecharConteudo,
     abrirFora() { if (S.conteudo) window.open(S.conteudo, "_blank", "noopener"); },
+    trocarAtividade(el) { mostrarAtividade(el.dataset.url); enviarPresenca().catch(() => {}); },
     pesquisa(el) { responderPesquisa(el.dataset.valor); },
     alternativa(el) { responderPergunta(el.dataset.valor); },
     enviarPergunta() { responderPergunta($("pqResposta").value); }

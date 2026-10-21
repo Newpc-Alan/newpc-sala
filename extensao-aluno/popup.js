@@ -18,7 +18,7 @@ async function atualizar() {
     $("telaNaAula").hidden = false;
     $("numAula").textContent = st.aula;
     $("nomeAluno").textContent = st.nome || "";
-    $("pillStatus").textContent = st.bloqueado ? "Tela bloqueada pelo professor" : "Conectado";
+    $("pillStatus").textContent = st.bloqueado ? "Tela pausada pelo professor" : "Conectado";
     $("pillStatus").classList.toggle("bloq", st.bloqueado);
     $("btnSair").disabled = st.bloqueado;
     $("btnMao").classList.toggle("erguida", !!st.mao);

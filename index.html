@@ -187,6 +187,44 @@
   .linha-tempo li small { display:block; color:var(--cinza); font-size:11px; }
   .lt-vazio { color:var(--cinza); display:block !important; }
 
+  /* ---- v0.8: conexão, envio, turma e seleção ---- */
+  .faixa-conexao { display:flex; align-items:center; gap:10px; background:#fff3d6; border:1px solid #e0a321; color:#6b4b00; border-radius:12px; padding:10px 14px; margin-bottom:14px; font-size:14px; font-weight:600; }
+  .faixa-conexao.erro { background:var(--vermelho-claro); border-color:#e8a29b; color:#8e2318; }
+  .faixa-conexao .spin { width:16px; height:16px; border-radius:50%; border:2px solid currentColor; border-right-color:transparent; animation:gira .8s linear infinite; flex:none; }
+  @keyframes gira { to { transform:rotate(360deg); } }
+  .btn[aria-busy="true"] { opacity:.65; pointer-events:none; }
+  .btn[aria-busy="true"]::after { content:""; width:12px; height:12px; border-radius:50%; border:2px solid currentColor; border-right-color:transparent; animation:gira .8s linear infinite; }
+  .barra-tit { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--azul); margin:0 0 8px 2px; }
+  .barra-tit .pilula { background:var(--azul); color:#fff; border-radius:20px; padding:2px 9px; font-size:11px; letter-spacing:.3px; text-transform:none; }
+  .grupo-btns .larga { grid-column:1 / -1; }
+  .envio { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 16px; margin-bottom:16px; }
+  .envio .ev-ico { font-size:22px; }
+  .envio .ev-txt { flex:1; min-width:220px; }
+  .envio .ev-txt b { display:block; }
+  .envio .ev-txt small { color:var(--cinza); font-size:13px; }
+  .envio .ev-cont { font-weight:800; font-size:15px; padding:6px 12px; border-radius:20px; background:var(--verde-claro); color:var(--lima-esc); white-space:nowrap; }
+  .envio .ev-cont.parcial { background:#fff3d6; color:#8a6100; }
+  .turma-ferr { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .turma-ferr input[type=search] { flex:1; min-width:180px; padding:9px 12px; border:1px solid var(--borda); border-radius:9px; font:inherit; font-size:14px; color:var(--azul); background:#fff; }
+  .filtros { display:flex; gap:6px; flex-wrap:wrap; }
+  .filtros .chip { padding:5px 11px; font-size:12.5px; }
+  .filtros .chip i { font-style:normal; opacity:.7; margin-left:3px; }
+  .aluno .cab input[type=checkbox] { width:18px; height:18px; margin:0; accent-color:var(--azul); cursor:pointer; flex:none; }
+  .aluno.sel { border-color:var(--azul); box-shadow:0 0 0 2px var(--azul); }
+  .aluno .botoes-rot { font-size:10.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--cinza); margin-top:auto; }
+  .aluno .botoes { margin-top:0; }
+  .tag.ok { background:#e3f4dc; color:#2f6b1a; } .tag.esp { background:#e6ebf0; color:var(--cinza); }
+  .barra-selecao { position:sticky; bottom:12px; z-index:15; display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--azul); color:#fff; border-radius:14px; padding:10px 14px; margin-top:14px; box-shadow:0 10px 30px rgba(15,44,74,.35); }
+  .barra-selecao b { margin-right:auto; }
+  .barra-selecao .btn.sec { background:rgba(255,255,255,.14); color:#fff; }
+  .destino { display:flex; align-items:center; gap:8px; background:var(--fundo); border-radius:10px; padding:9px 12px; margin-top:12px; font-size:14px; }
+  .destino b { color:var(--azul); }
+  .destino.um { background:#eaf3fb; } .destino.varios { background:#fff3d6; }
+  .link-rapido { display:flex; gap:8px; margin:12px 0 4px; }
+  .link-rapido input { flex:1; }
+  .toast.ok { background:#2f6b1a; } .toast.erro { background:var(--vermelho); }
+  .sem-resultado { grid-column:1 / -1; text-align:center; color:var(--cinza); padding:24px; }
+
   @media (max-width:1100px) {
     .cols { grid-template-columns:1fr; }
     .linha-tempo { position:static; }
@@ -206,9 +244,9 @@
 </head>
 <body>
 <header>
-  <div class="logo"><img src="assets/pde-256.png" alt="Portal do Educador"></div>
+  <div class="logo"><img src="assets/maestro-icone-256.png" alt="Portal Maestro" style="border-radius:12px"></div>
   <h1>Portal Maestro <small>Portal do Educador · Painel do professor</small></h1>
-  <div class="dir"><span class="conexao" id="conexao">Conectado</span></div>
+  <div class="dir"><span class="conexao" id="conexao"></span></div>
 </header>
 
 <main>
@@ -216,7 +254,7 @@
   <section class="painel inicio" id="telaInicio">
     <h2>Iniciar aula</h2>
     <p class="slogan">O professor conduz, a turma acompanha.</p>
-    <p>Gere o número da aula e passe para a turma. Ao ligar o Chromebook, o aluno digita esse número e entra na sua regência.</p>
+    <p>Gere o número da aula e mostre para a turma. Os alunos digitam esse número no Chromebook, no computador ou no tablet e entram na sua aula.</p>
     <label for="nomeProfessor">Seu nome</label>
     <input type="text" id="nomeProfessor" maxlength="60" placeholder="Prof. Nome Sobrenome">
     <button class="btn largo" data-action="novaAula">Gerar número da aula</button>
@@ -230,6 +268,7 @@
 
   <!-- AULA -->
   <section id="telaAula" hidden>
+    <div class="faixa-conexao" id="faixaConexao" role="status" hidden></div>
     <div class="topo-aula">
       <div class="codigo">
         <span>Número da aula</span>
@@ -246,18 +285,18 @@
           <div class="tile"><span class="t-ico">👩‍🎓</span><b id="cOnline">0</b><span>conectados</span></div>
           <div class="tile t-mao"><span class="t-ico">✋</span><b id="cMaos">0</b><span>mãos levantadas</span></div>
           <div class="tile"><span class="t-ico">💬</span><b id="cInter">0</b><span>interações dos alunos</span></div>
-          <div class="tile"><span class="t-ico">🔒</span><b id="cBloq">0</b><span>telas bloqueadas</span></div>
+          <div class="tile"><span class="t-ico">⏸️</span><b id="cBloq">0</b><span>telas pausadas</span></div>
         </div>
         <span id="cOff" hidden>0</span>
       </div>
     </div>
 
+    <div class="barra-tit">Ações para a turma toda <span class="pilula" id="pilulaTurma">0 conectados</span></div>
     <div class="painel barra-acoes">
       <div class="grupo">
         <span class="grupo-rot">Conduzir a aula</span>
         <div class="grupo-btns">
-          <button class="btn acao" data-action="abrirAcervo" title="Abrir um conteúdo do Portal do Educador nos Chromebooks"><span class="ic">📚</span>Conteúdos</button>
-          <button class="btn sec acao" data-action="abrirModalLink" data-alvo="todos" title="Abrir um site nos Chromebooks"><span class="ic">🔗</span>Enviar link</button>
+          <button class="btn acao larga" data-action="abrirAcervo" data-alvo="todos" title="Abrir um conteúdo ou link em todos os dispositivos conectados"><span class="ic">📚</span>Enviar conteúdo</button>
         </div>
       </div>
       <div class="grupo">
@@ -268,13 +307,15 @@
         </div>
       </div>
       <div class="grupo">
-        <span class="grupo-rot">Telas dos alunos</span>
+        <span class="grupo-rot">Atenção</span>
         <div class="grupo-btns">
-          <button class="btn alerta acao" data-action="bloquearTodos" title="Pausa as telas para a turma prestar atenção"><span class="ic">🔒</span>Bloquear telas</button>
-          <button class="btn sec acao" data-action="desbloquearTodos" title="Libera todas as telas"><span class="ic">🔓</span>Liberar telas</button>
+          <button class="btn alerta acao" data-action="bloquearTodos" title="Pausa as telas dos alunos com uma tela de atenção"><span class="ic">⏸️</span>Pausar telas</button>
+          <button class="btn sec acao" data-action="desbloquearTodos" title="Libera as telas para a turma voltar à atividade"><span class="ic">▶️</span>Liberar telas</button>
         </div>
       </div>
     </div>
+
+    <div class="painel envio" id="envioStatus" hidden></div>
 
     <div class="aviso-maos" id="avisoMaos" hidden></div>
 
@@ -302,13 +343,25 @@
     <div class="cols">
       <div>
         <div class="turma-cab">
-          <h2>Turma</h2>
+          <h2>Turma <span class="duracao" id="turmaConta"></span></h2>
           <button class="link" data-action="limparDesconectados">Limpar desconectados</button>
         </div>
+        <div class="turma-ferr" id="turmaFerr" hidden>
+          <input type="search" id="buscaAluno" placeholder="Buscar aluno pelo nome" aria-label="Buscar aluno">
+          <div class="filtros" id="filtros"></div>
+          <button class="btn sec peq" data-action="selecionarVisiveis">Selecionar visíveis</button>
+        </div>
         <div class="grade" id="grade"></div>
+        <div class="barra-selecao" id="barraSelecao" hidden>
+          <b id="selConta">0 selecionados</b>
+          <button class="btn peq" data-action="abrirAcervo" data-alvo="selecao">📚 Enviar conteúdo</button>
+          <button class="btn sec peq" data-action="pausarSelecao">⏸️ Pausar</button>
+          <button class="btn sec peq" data-action="liberarSelecao">▶️ Liberar</button>
+          <button class="btn sec peq" data-action="limparSelecao">Limpar seleção</button>
+        </div>
         <div class="vazio" id="vazio">
           <strong>Aguardando alunos</strong>
-          Peça para a turma ligar os Chromebooks e digitar o número da aula na tela de entrada.
+          Mostre o número da aula para a turma. Os alunos digitam o número no Chromebook, no computador ou no tablet.
         </div>
       </div>
       <aside class="painel linha-tempo">
@@ -322,11 +375,15 @@
 <!-- MODAL ACERVO -->
 <div class="modal-fundo" id="modalAcervo" hidden>
   <div class="modal largo">
-    <h3>📚 Conteúdos</h3>
-    <p>Escolha o conteúdo e envie: abre sozinho nos Chromebooks em até 3 segundos.</p>
+    <h3>📚 Enviar conteúdo</h3>
+    <div class="destino" id="acervoDestino"></div>
+    <div class="link-rapido">
+      <input type="url" id="urlLink" placeholder="Colar um endereço (https://...)" aria-label="Endereço do site">
+      <button class="btn" data-action="confirmarLink">Enviar link</button>
+    </div>
+    <div class="msg erro" id="msgLink"></div>
     <div class="acervo-topo">
-      <input type="text" id="acervoBusca" placeholder="Buscar no acervo">
-      <select id="acervoAlvo" aria-label="Enviar para"></select>
+      <input type="text" id="acervoBusca" placeholder="Ou busque no acervo do Portal do Educador">
     </div>
     <div class="chips" id="acervoChips"></div>
     <div class="acervo-lista" id="acervoLista"></div>
@@ -403,21 +460,6 @@
   </div>
 </div>
 
-<!-- MODAL LINK -->
-<div class="modal-fundo" id="modalLink" hidden>
-  <div class="modal">
-    <h3>Enviar link</h3>
-    <p id="modalLinkAlvo">Abre em uma nova aba em todos os dispositivos.</p>
-    <label for="urlLink">Endereço</label>
-    <input type="url" id="urlLink" placeholder="https://">
-    <div class="msg erro" id="msgLink"></div>
-    <div class="rodape">
-      <button class="btn sec" data-action="fecharModal">Cancelar</button>
-      <button class="btn" data-action="confirmarLink">Enviar</button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL CONFIRMAR -->
 <div class="modal-fundo" id="modalConfirmar" hidden>
   <div class="modal">
@@ -456,7 +498,10 @@
     { cat: "Portal do Educador", sigla: "L3D", cor: "#3ea8ce", nome: "Laboratório Imersivo 3D", desc: "Apps 3D do Portal do Educador.", url: "https://www.portaldoeducador.com.br/laboratorio-imersivo-3d/" },
     { cat: "Ferramentas", sigla: "LI", cor: "#0F2C4A", nome: "Lousa Interativa", desc: "Quadro digital para atividade de desenho ou registro.", url: "https://lousa.portaldoeducador.com.br/" }
   ];
-  const st = { aula: null, professor: "", alunos: {}, controle: {}, offset: 0, timer: null, linkAlvo: "todos", acaoPendente: null, respostas: {}, acervoCat: "Todos", cpMin: 5 };
+  const VALIDADE_ENVIO_MS = 15 * 60000; // por quanto tempo o painel acompanha a abertura de um envio
+  const PRAZO_ABRIR_MS = 120000;        // depois disso o aluno não executa mais a ordem (mesma regra da extensão e da página do aluno)
+  const st = { aula: null, professor: "", alunos: {}, controle: {}, offset: 0, timer: null, acaoPendente: null, respostas: {}, acervoCat: "Todos", cpMin: 5,
+               destino: { tipo: "todos", ids: [] }, sel: new Set(), filtro: "todos", busca: "", falhas: 0, ultimaOk: 0, emConsulta: false, abriu: {} };
 
   // ---------- utilidades ----------
 
@@ -467,7 +512,17 @@
   async function fb(caminho, metodo, corpo) {
     const op = { method: metodo || "GET", headers: { "Content-Type": "application/json" } };
     if (corpo !== undefined) op.body = JSON.stringify(corpo);
-    const r = await fetch(`${FIREBASE_URL}/${caminho}.json`, op);
+    const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    const limite = ctrl ? setTimeout(() => ctrl.abort(), 10000) : null;
+    if (ctrl) op.signal = ctrl.signal;
+    let r;
+    try {
+      r = await fetch(`${FIREBASE_URL}/${caminho}.json`, op);
+    } catch (e) {
+      throw new Error(e && e.name === "AbortError" ? "O servidor demorou a responder. Confira a internet e tente de novo." : "Sem conexão com a internet. Confira a rede e tente de novo.");
+    } finally {
+      clearTimeout(limite);
+    }
     if (!r.ok) {
       if (r.status === 401 || r.status === 403) throw new Error("Acesso negado pelo Firebase. Confira as regras do banco (arquivo regras-firebase.json).");
       throw new Error(`Erro ${r.status} no servidor.`);
@@ -483,12 +538,14 @@
   }
 
   let toastTimer = null;
-  function toast(texto) {
+  function toast(texto, tipo) {
     const t = $("toast");
     t.textContent = texto;
+    t.className = "toast" + (tipo ? " " + tipo : "");
+    t.setAttribute("role", tipo === "erro" ? "alert" : "status");
     t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+    toastTimer = setTimeout(() => { t.hidden = true; }, tipo === "erro" ? 5000 : 3000);
   }
 
   function novoId() {
@@ -537,7 +594,10 @@
     st.aula = null;
     st.alunos = {};
     st.log = {}; st.maosVistas = {}; st.respVistas = {}; st.carregouUmaVez = false; st.criadaEm = null;
-    st.ultimaGrade = ""; st.ultimaLt = ""; st.ultimoAviso = "";
+    st.ultimaGrade = ""; st.ultimaLt = ""; st.ultimoAviso = ""; st.ultimoEnvio = ""; st.ultimosFiltros = "";
+    st.sel = new Set(); st.abriu = {}; st.falhas = 0; st.busca = ""; st.filtro = "todos";
+    $("buscaAluno").value = "";
+    $("faixaConexao").hidden = true;
     $("telaAula").hidden = true;
     $("telaInicio").hidden = false;
     $("grade").innerHTML = "";
@@ -559,13 +619,35 @@
     return Object.values(st.controle.bloqueio || {}).some((v) => v === true);
   }
 
+  function mostrarConexao(ok) {
+    const faixa = $("faixaConexao");
+    if (ok) {
+      if (st.falhas >= 2) toast("Conexão restabelecida. O painel está atualizado.", "ok");
+      st.falhas = 0;
+      st.ultimaOk = Date.now();
+      faixa.hidden = true;
+      $("conexao").textContent = "Conectado";
+      $("conexao").classList.remove("ruim");
+      return;
+    }
+    st.falhas++;
+    $("conexao").textContent = "Reconectando...";
+    $("conexao").classList.add("ruim");
+    if (st.falhas < 2) return; // uma falha isolada não assusta o professor
+    const seg = st.ultimaOk ? Math.round((Date.now() - st.ultimaOk) / 1000) : 0;
+    faixa.className = "faixa-conexao" + (seg > 120 ? " erro" : "");
+    faixa.innerHTML = `<span class="spin"></span><span>Sem conexão com o servidor. Tentando reconectar...${seg ? ` Última atualização há ${seg} s.` : ""}
+      Os alunos continuam na aula; o que você enviar agora pode não chegar.</span>`;
+    faixa.hidden = false;
+  }
+
   async function atualizar() {
-    if (!st.aula) return;
+    if (!st.aula || st.emConsulta) return; // não empilha consultas quando a rede está lenta
+    st.emConsulta = true;
     if (Date.now() - (st.ultimoSinal || 0) > 15000) sinalDeVida().catch(() => {});
     try {
       const aula = await fb(`aulas/${st.aula}`);
-      $("conexao").textContent = "Conectado";
-      $("conexao").classList.remove("ruim");
+      mostrarConexao(true);
       if (!aula || (aula.controle && aula.controle.encerrada)) {
         toast("Esta aula foi encerrada.");
         voltarInicio();
@@ -582,10 +664,12 @@
       processarMaos();
       contarInteracoes();
       desenharLinhaTempo();
+      desenharEnvio();
       st.carregouUmaVez = true;
     } catch (e) {
-      $("conexao").textContent = "Sem conexão";
-      $("conexao").classList.add("ruim");
+      mostrarConexao(false);
+    } finally {
+      st.emConsulta = false;
     }
   }
 
@@ -594,50 +678,158 @@
     return typeof ind === "boolean" ? ind : !!st.controle.bloqueioGeral;
   }
 
+  // ---------- envios: "enviado" x "abriu" ----------
+
+  function normUrl(u) {
+    return String(u || "").replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
+  }
+
+  // último comando que vale para este aluno (o da turma ou o individual, o mais recente)
+  function ultimoCmdPara(id) {
+    const ind = st.controle.comandos ? st.controle.comandos[id] : null;
+    return [st.controle.comando, ind].filter((c) => c && c.id && typeof c.ts === "number").sort((x, y) => y.ts - x.ts)[0] || null;
+  }
+
+  function cmdRecente(c) {
+    return c && agoraServidor() - c.ts < VALIDADE_ENVIO_MS;
+  }
+
+  // o aluno abriu? confirmação da extensão 0.8+ e da página do aluno; nas versões antigas, a aba ativa no mesmo endereço
+  function abriu(id, a, c) {
+    const k = id + "|" + c.id;
+    if (st.abriu[k]) return true;
+    const ok = (a.ultimoCmd && a.ultimoCmd.id === c.id) || (a.aba && a.aba.url && normUrl(a.aba.url).startsWith(normUrl(c.url)));
+    if (ok) st.abriu[k] = true;
+    return !!ok;
+  }
+
+  // quem entrou depois do envio não recebe o comando antigo
+  function eraAlvo(a, c) {
+    return !(typeof a.entrouEm === "number" && a.entrouEm > c.ts + 1000);
+  }
+
+  function tagEnvio(id, a, online) {
+    const c = ultimoCmdPara(id);
+    if (!cmdRecente(c) || !eraAlvo(a, c)) return "";
+    if (abriu(id, a, c)) return `<span class="tag ok" title="${esc(c.nome || c.url)}">Abriu o conteúdo</span>`;
+    if (agoraServidor() - c.ts > PRAZO_ABRIR_MS) return `<span class="tag bloq" title="Reenvie se o aluno ainda precisa da atividade">Não abriu</span>`;
+    return online ? `<span class="tag esp" title="${esc(c.nome || c.url)}">Aguardando abrir...</span>` : "";
+  }
+
+  function desenharEnvio() {
+    const box = $("envioStatus");
+    const cmds = [];
+    if (st.controle.comando && st.controle.comando.id) cmds.push({ c: st.controle.comando, turma: true });
+    Object.values(st.controle.comandos || {}).forEach((c) => { if (c && c.id && !cmds.some((x) => x.c.id === c.id)) cmds.push({ c, turma: false }); });
+    const ult = cmds.filter((x) => typeof x.c.ts === "number").sort((x, y) => y.c.ts - x.c.ts)[0];
+    if (!ult || !cmdRecente(ult.c)) { box.hidden = true; st.ultimoEnvio = ""; return; }
+    const c = ult.c;
+    const agora = agoraServidor();
+    const alvos = Object.entries(st.alunos).filter(([id, a]) => {
+      if (!eraAlvo(a, c)) return false;
+      if (!ult.turma) return st.controle.comandos && st.controle.comandos[id] && st.controle.comandos[id].id === c.id;
+      return agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS || abriu(id, a, c);
+    });
+    const ok = alvos.filter(([id, a]) => abriu(id, a, c));
+    const faltam = alvos.filter(([id, a]) => !abriu(id, a, c)).map(([, a]) => a.nome || "Aluno");
+    const dest = ult.turma ? "a turma toda" : (alvos.length === 1 ? (alvos[0][1].nome || "1 aluno") : `${alvos.length} alunos`);
+    const html = `<span class="ev-ico">📚</span>
+      <div class="ev-txt"><b>${esc(c.nome || normUrl(c.url))}</b>
+        <small>Enviado para ${esc(dest)} às ${hora(c.ts)}${faltam.length ? ` · ${agora - c.ts > PRAZO_ABRIR_MS ? "não abriram (reenvie se precisar)" : "aguardando"}: ${esc(faltam.slice(0, 6).join(", "))}${faltam.length > 6 ? " e mais " + (faltam.length - 6) : ""}` : ""}</small></div>
+      <span class="ev-cont ${ok.length < alvos.length ? "parcial" : ""}">${alvos.length ? `Abriu em ${ok.length} de ${alvos.length}` : "Nenhum aluno conectado"}</span>`;
+    if (html !== st.ultimoEnvio) { st.ultimoEnvio = html; box.innerHTML = html; }
+    box.hidden = false;
+  }
+
+  // ---------- turma: lista, busca, filtros e seleção ----------
+
+  const FILTROS = [
+    ["todos", "Todos"], ["online", "Conectados"], ["mao", "Mão levantada"], ["pausados", "Pausados"],
+    ["semResposta", "Sem resposta"], ["offline", "Desconectados"]
+  ];
+
   function desenhar() {
     const agora = agoraServidor();
+    const rAf = (st.controle.afinacao && st.controle.afinacao.ativa) ? (respostasAfinacaoAtual() || {}) : null;
     const lista = Object.entries(st.alunos).map(([id, a]) => ({
-      id, ...a, online: agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS
+      id, a, online: agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS
     }));
-    lista.sort((a, b) => (b.online - a.online) || String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+    lista.sort((x, y) => (y.online - x.online) || String(x.a.nome || "").localeCompare(String(y.a.nome || ""), "pt-BR"));
 
-    let on = 0, bl = 0, off = 0;
-    const html = lista.map((a) => {
-      const esperado = bloqueadoEsperado(a.id);
-      if (a.online) on++; else off++;
-      if (a.online && a.bloqueado) bl++;
-      const pendente = a.online && esperado !== !!a.bloqueado;
-      const aba = a.aba && a.aba.titulo ? a.aba.titulo : (a.aba && a.aba.url ? a.aba.url : "Sem aba ativa");
+    // seleção sobrevive às atualizações; quem saiu da lista sai da seleção
+    st.sel.forEach((id) => { if (!st.alunos[id]) st.sel.delete(id); });
+
+    const conta = { todos: lista.length, online: 0, mao: 0, pausados: 0, semResposta: 0, offline: 0 };
+    const passa = {
+      todos: () => true,
+      online: (x) => x.online,
+      mao: (x) => !!x.a.mao,
+      pausados: (x) => !!x.a.bloqueado || bloqueadoEsperado(x.id),
+      semResposta: (x) => !!rAf && x.online && !rAf[x.id],
+      offline: (x) => !x.online
+    };
+    lista.forEach((x) => Object.keys(passa).forEach((f) => { if (f !== "todos" && passa[f](x)) conta[f]++; }));
+    if (!passa[st.filtro] || (st.filtro !== "todos" && !conta[st.filtro])) st.filtro = "todos";
+
+    const busca = st.busca.trim().toLowerCase();
+    const visiveis = lista.filter((x) => passa[st.filtro](x) && (!busca || String(x.a.nome || "").toLowerCase().includes(busca)));
+    st.visiveis = visiveis.map((x) => x.id);
+
+    let bl = 0;
+    const html = visiveis.map(({ id, a, online }) => {
+      const esperado = bloqueadoEsperado(id);
+      const pendente = online && esperado !== !!a.bloqueado;
+      const aba = a.aba && a.aba.titulo ? a.aba.titulo : (a.aba && a.aba.url ? a.aba.url : "Sem atividade aberta");
+      const marcado = st.sel.has(id);
       const tags = [
-        a.online ? '<span class="tag">Online</span>' : '<span class="tag off">Desconectado</span>',
-        a.bloqueado ? '<span class="tag bloq">Bloqueado</span>' : "",
-        pendente ? '<span class="tag off">Aplicando...</span>' : "",
-        tagAfinacao(a.id)
+        online ? '<span class="tag">Online</span>' : '<span class="tag off">Desconectado</span>',
+        a.bloqueado ? '<span class="tag bloq">Pausado</span>' : "",
+        pendente ? `<span class="tag off">${esperado ? "Pausando..." : "Liberando..."}</span>` : "",
+        tagEnvio(id, a, online),
+        tagAfinacao(id)
       ].join("");
       return `
-        <div class="aluno ${a.online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""} ${a.mao ? "mao" : ""}">
-          <div class="cab"><span class="ponto"></span><span class="nome" title="${esc(a.nome)}">${esc(a.nome || "Sem nome")}</span></div>
+        <div class="aluno ${online ? "online" : "offline"} ${a.bloqueado ? "bloq" : ""} ${a.mao ? "mao" : ""} ${marcado ? "sel" : ""}">
+          <div class="cab"><input type="checkbox" data-action="selecionar" data-id="${esc(id)}" ${marcado ? "checked" : ""} aria-label="Selecionar ${esc(a.nome || "aluno")}"><span class="ponto"></span><span class="nome" title="${esc(a.nome)}">${esc(a.nome || "Sem nome")}</span></div>
           <div class="email" title="${esc(a.email)}">${esc(a.email || "conta não identificada")}</div>
-          <div class="aba" title="${esc(a.aba && a.aba.url)}"><b>Aba:</b> ${esc(aba)}</div>
+          <div class="aba" title="${esc(a.aba && a.aba.url)}"><b>Vendo:</b> ${esc(aba)}</div>
           <div class="tags">${tags}</div>
-          ${a.mao ? `<div class="mao-card"><span class="mao-ani">✋</span>Mão levantada<button data-action="atenderMao" data-id="${esc(a.id)}">Atender</button></div>` : ""}
-          ${cardPergunta(a.id)}
+          ${a.mao ? `<div class="mao-card"><span class="mao-ani">✋</span>Mão levantada<button data-action="atenderMao" data-id="${esc(id)}">Atender</button></div>` : ""}
+          ${cardPergunta(id)}
+          <div class="botoes-rot">Só para este aluno</div>
           <div class="botoes">
             ${esperado
-              ? `<button class="btn sec peq" data-action="desbloquearUm" data-id="${esc(a.id)}">Desbloquear</button>`
-              : `<button class="btn alerta peq" data-action="bloquearUm" data-id="${esc(a.id)}">Bloquear</button>`}
-            <button class="btn sec peq" data-action="abrirModalLink" data-alvo="${esc(a.id)}">Enviar link</button>
-            <button class="btn sec peq" data-action="abrirPergunta" data-id="${esc(a.id)}">Perguntar</button>
+              ? `<button class="btn sec peq" data-action="desbloquearUm" data-id="${esc(id)}">▶️ Liberar</button>`
+              : `<button class="btn alerta peq" data-action="bloquearUm" data-id="${esc(id)}">⏸️ Pausar</button>`}
+            <button class="btn sec peq" data-action="abrirAcervo" data-alvo="${esc(id)}">📚 Enviar</button>
+            <button class="btn sec peq" data-action="abrirPergunta" data-id="${esc(id)}">❓ Perguntar</button>
           </div>
         </div>`;
-    }).join("");
+    }).join("") || (lista.length ? '<div class="sem-resultado">Nenhum aluno neste filtro.</div>' : "");
+    lista.forEach((x) => { if (x.online && x.a.bloqueado) bl++; });
 
     // só redesenha quando algo mudou: evita piscar e botão "fugindo" do clique
     if (html !== st.ultimaGrade) { st.ultimaGrade = html; $("grade").innerHTML = html; }
+
+    const htmlF = FILTROS.filter(([f]) => f === "todos" || conta[f] || st.filtro === f)
+      .map(([f, rot]) => `<button class="chip ${st.filtro === f ? "ativo" : ""}" data-action="filtrarTurma" data-filtro="${f}">${rot}<i>${conta[f]}</i></button>`).join("");
+    if (htmlF !== st.ultimosFiltros) { st.ultimosFiltros = htmlF; $("filtros").innerHTML = htmlF; }
+
+    $("turmaFerr").hidden = lista.length < 2;
     $("vazio").hidden = lista.length > 0;
-    $("cOnline").textContent = on;
+    $("vazio").querySelector("strong").textContent = st.carregouUmaVez || lista.length ? "Aguardando alunos" : "Carregando a turma...";
+    $("cOnline").textContent = conta.online;
     $("cBloq").textContent = bl;
-    $("cOff").textContent = off;
+    $("cOff").textContent = conta.offline;
+    $("pilulaTurma").textContent = conta.online === 1 ? "1 conectado" : `${conta.online} conectados`;
+    $("turmaConta").textContent = lista.length ? `· ${conta.online} de ${lista.length} conectados` : "";
+    desenharSelecao();
+  }
+
+  function desenharSelecao() {
+    const n = st.sel.size;
+    $("barraSelecao").hidden = n === 0;
+    $("selConta").textContent = n === 1 ? `1 aluno selecionado (${nomeDe([...st.sel][0])})` : `${n} alunos selecionados`;
   }
 
   // ---------- linha do tempo e mãos levantadas ----------
@@ -855,19 +1047,50 @@
       </div>`).join("") : '<p style="color:var(--cinza)">Nada encontrado.</p>';
   }
 
-  function preencherAlvos() {
-    const agora = agoraServidor();
-    const online = Object.entries(st.alunos).filter(([, a]) => agora - (a.ultimaAtividade || 0) < LIMITE_ONLINE_MS);
-    $("acervoAlvo").innerHTML = '<option value="todos">Turma toda</option>' +
-      online.map(([id, a]) => `<option value="${esc(id)}">${esc(a.nome || "Aluno")}</option>`).join("");
+  // ---------- destino do envio: turma, um aluno ou seleção ----------
+
+  function definirDestino(alvo) {
+    if (alvo === "selecao") {
+      const ids = [...st.sel].filter((id) => st.alunos[id]);
+      if (!ids.length) throw new Error("Selecione pelo menos um aluno.");
+      st.destino = { tipo: "selecao", ids };
+    } else if (alvo && alvo !== "todos") {
+      st.destino = { tipo: "aluno", ids: [alvo] };
+    } else {
+      st.destino = { tipo: "todos", ids: [] };
+    }
+    const box = $("acervoDestino");
+    const on = Number($("cOnline").textContent) || 0;
+    if (st.destino.tipo === "todos") {
+      box.className = "destino";
+      box.innerHTML = `👥 Para: <b>a turma toda</b> · ${on === 1 ? "1 aluno conectado" : on + " alunos conectados"}`;
+    } else if (st.destino.tipo === "aluno") {
+      box.className = "destino um";
+      box.innerHTML = `👤 Para: <b>${esc(nomeDe(st.destino.ids[0]))}</b> · só este aluno recebe`;
+    } else {
+      const nomes = st.destino.ids.map(nomeDe);
+      box.className = "destino varios";
+      box.innerHTML = `☑️ Para: <b>${nomes.length} alunos selecionados</b> · ${esc(nomes.slice(0, 4).join(", "))}${nomes.length > 4 ? " e mais " + (nomes.length - 4) : ""}`;
+    }
+  }
+
+  function descreverDestino() {
+    if (st.destino.tipo === "todos") return "a turma toda";
+    if (st.destino.ids.length === 1) return nomeDe(st.destino.ids[0]);
+    return `${st.destino.ids.length} alunos`;
   }
 
   // ---------- comandos ----------
 
-  async function enviarLink(alvo, url) {
-    const cmd = { id: novoId(), tipo: "abrirLink", url, ts: { ".sv": "timestamp" } };
-    const caminho = alvo === "todos" ? `aulas/${st.aula}/controle/comando` : `aulas/${st.aula}/controle/comandos/${alvo}`;
-    await fb(caminho, "PUT", cmd);
+  async function enviarLink(url, nome) {
+    const cmd = { id: novoId(), tipo: "abrirLink", url, nome: String(nome || "").slice(0, 80), ts: { ".sv": "timestamp" } };
+    if (st.destino.tipo === "todos") {
+      await fb(`aulas/${st.aula}/controle/comando`, "PUT", cmd);
+    } else {
+      const patch = {};
+      st.destino.ids.forEach((id) => { patch[id] = cmd; });
+      await fb(`aulas/${st.aula}/controle/comandos`, "PATCH", patch); // um único envio para todos os selecionados
+    }
   }
 
   function nomeDe(id) {
@@ -905,6 +1128,8 @@
     async retomarAula() {
       const c = $("codigoRetomar").value.replace(/\D/g, "");
       if (c.length !== 6) { $("msgInicio").textContent = "O número tem 6 dígitos."; $("msgInicio").className = "msg erro"; return; }
+      $("msgInicio").textContent = `Conectando à aula ${c}...`;
+      $("msgInicio").className = "msg";
       try {
         const aula = await fb(`aulas/${c}`);
         if (!aula) throw new Error("Aula não encontrada.");
@@ -917,56 +1142,92 @@
       }
     },
 
-    abrirModalLink(el) {
-      st.linkAlvo = el.dataset.alvo || "todos";
-      $("modalLinkAlvo").textContent = st.linkAlvo === "todos"
-        ? "Abre em uma nova aba em todos os dispositivos conectados."
-        : `Abre em uma nova aba no dispositivo de ${nomeDe(st.linkAlvo)}.`;
-      $("msgLink").textContent = "";
-      $("modalLink").hidden = false;
-      $("urlLink").focus();
-    },
-
     async confirmarLink() {
       let url = $("urlLink").value.trim();
-      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
-      try { new URL(url); } catch (e) { $("msgLink").textContent = "Endereço inválido."; return; }
-      try {
-        await enviarLink(st.linkAlvo, url);
-        registrar("link", `Link enviado para ${st.linkAlvo === "todos" ? "a turma" : nomeDe(st.linkAlvo)}: ${url.replace(/^https?:\/\//, "").slice(0, 50)}`);
-        $("modalLink").hidden = true;
-        toast(st.linkAlvo === "todos" ? "Link enviado para a turma." : `Link enviado para ${nomeDe(st.linkAlvo)}.`);
-      } catch (e) {
-        $("msgLink").textContent = e.message;
-      }
+      if (!url) { $("msgLink").textContent = "Cole o endereço do site."; return; }
+      if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+      let u;
+      try { u = new URL(url); if (!u.hostname.includes(".")) throw new Error(); } catch (e) { $("msgLink").textContent = "Endereço inválido. Confira e tente de novo."; return; }
+      $("msgLink").textContent = "";
+      const nome = u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname : "");
+      await enviarLink(url, nome);
+      const quem = descreverDestino();
+      registrar("link", `Link enviado para ${quem}: ${nome.slice(0, 50)}`);
+      $("urlLink").value = "";
+      $("modalAcervo").hidden = true;
+      toast(`Link enviado para ${quem}. Acompanhe no painel quem já abriu.`, "ok");
+      atualizar();
     },
 
     async bloquearTodos() {
       await sinalDeVida();
       await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: true, bloqueio: null });
-      registrar("bloqueio", "Telas da turma bloqueadas");
-      toast("Bloqueando todas as telas...");
+      registrar("bloqueio", "Telas da turma pausadas");
+      toast("Pausa enviada para a turma. Cada card mostra quando a tela pausar.", "ok");
       atualizar();
     },
 
     async desbloquearTodos() {
       await fb(`aulas/${st.aula}/controle`, "PATCH", { bloqueioGeral: false, bloqueio: null });
       registrar("liberou", "Telas da turma liberadas");
-      toast("Liberando todas as telas...");
+      toast("Telas liberadas para a turma.", "ok");
       atualizar();
     },
 
     async bloquearUm(el) {
       await sinalDeVida();
       await fb(`aulas/${st.aula}/controle/bloqueio/${el.dataset.id}`, "PUT", true);
-      toast(`Bloqueando ${nomeDe(el.dataset.id)}...`);
+      registrar("bloqueio", `Tela de ${nomeDe(el.dataset.id)} pausada`);
+      toast(`Pausando a tela de ${nomeDe(el.dataset.id)}...`, "ok");
       atualizar();
     },
 
     async desbloquearUm(el) {
       await fb(`aulas/${st.aula}/controle/bloqueio/${el.dataset.id}`, "PUT", false);
-      toast(`Liberando ${nomeDe(el.dataset.id)}...`);
+      registrar("liberou", `Tela de ${nomeDe(el.dataset.id)} liberada`);
+      toast(`Liberando a tela de ${nomeDe(el.dataset.id)}...`, "ok");
       atualizar();
+    },
+
+    async pausarSelecao() {
+      const ids = [...st.sel];
+      if (!ids.length) return;
+      await sinalDeVida();
+      const patch = {}; ids.forEach((id) => { patch[id] = true; });
+      await fb(`aulas/${st.aula}/controle/bloqueio`, "PATCH", patch);
+      registrar("bloqueio", `Telas pausadas: ${ids.map(nomeDe).join(", ").slice(0, 120)}`);
+      toast(`Pausando ${ids.length === 1 ? "1 tela" : ids.length + " telas"}...`, "ok");
+      atualizar();
+    },
+
+    async liberarSelecao() {
+      const ids = [...st.sel];
+      if (!ids.length) return;
+      const patch = {}; ids.forEach((id) => { patch[id] = false; });
+      await fb(`aulas/${st.aula}/controle/bloqueio`, "PATCH", patch);
+      registrar("liberou", `Telas liberadas: ${ids.map(nomeDe).join(", ").slice(0, 120)}`);
+      toast(`Liberando ${ids.length === 1 ? "1 tela" : ids.length + " telas"}...`, "ok");
+      atualizar();
+    },
+
+    selecionar(el) {
+      if (el.checked) st.sel.add(el.dataset.id); else st.sel.delete(el.dataset.id);
+      desenhar();
+    },
+
+    selecionarVisiveis() {
+      (st.visiveis || []).forEach((id) => st.sel.add(id));
+      desenhar();
+    },
+
+    limparSelecao() {
+      st.sel.clear();
+      desenhar();
+    },
+
+    filtrarTurma(el) {
+      st.filtro = el.dataset.filtro;
+      desenhar();
     },
 
     limparDesconectados() {
@@ -977,7 +1238,8 @@
         const patch = {};
         ids.forEach((id) => { patch[id] = null; });
         await fb(`aulas/${st.aula}/alunos`, "PATCH", patch);
-        toast("Lista atualizada.");
+        ids.forEach((id) => st.sel.delete(id));
+        toast("Lista atualizada.", "ok");
         atualizar();
       });
     },
@@ -986,7 +1248,7 @@
       confirmar("Encerrar aula", "Todos os dispositivos serão desbloqueados e desconectados desta aula.", async () => {
         await fb(`aulas/${st.aula}/controle`, "PATCH", { encerrada: true, bloqueioGeral: false, bloqueio: null });
         await fb(`aulas/${st.aula}/encerradaEm`, "PUT", { ".sv": "timestamp" });
-        toast("Aula encerrada.");
+        toast("Aula encerrada. Os alunos foram liberados.", "ok");
         voltarInicio();
       });
     },
@@ -996,16 +1258,22 @@
       st.acaoPendente = null;
       $("modalConfirmar").hidden = true;
       if (fn) {
-        try { await fn(); } catch (e) { toast(e.message); }
+        try { await fn(); } catch (e) { toast(e.message, "erro"); }
       }
     },
 
-    abrirAcervo() {
+    abrirAcervo(el) {
+      definirDestino(el && el.dataset ? el.dataset.alvo : "todos");
       $("msgAcervo").textContent = "";
-      preencherAlvos();
+      $("msgLink").textContent = "";
       desenharAcervo();
       $("modalAcervo").hidden = false;
-      $("acervoBusca").focus();
+      $("urlLink").focus();
+    },
+
+    // compatibilidade: o antigo "Enviar link" agora abre o mesmo envio com o destino certo
+    abrirModalLink(el) {
+      return acoes.abrirAcervo(el);
     },
 
     filtrarAcervo(el) {
@@ -1014,12 +1282,12 @@
     },
 
     async enviarAcervo(el) {
-      const alvo = $("acervoAlvo").value;
-      await enviarLink(alvo, el.dataset.url);
-      const quem = alvo === "todos" ? "a turma" : nomeDe(alvo);
+      await enviarLink(el.dataset.url, el.dataset.nome);
+      const quem = descreverDestino();
       registrar("conteudo", `${el.dataset.nome} enviado para ${quem}`);
       $("modalAcervo").hidden = true;
-      toast(`${el.dataset.nome} enviado para ${quem}.`);
+      toast(`${el.dataset.nome} enviado para ${quem}. Acompanhe no painel quem já abriu.`, "ok");
+      atualizar();
     },
 
     addMeuLink() {
@@ -1082,7 +1350,7 @@
       });
       $("modalPergunta").hidden = true;
       registrar("pergunta", `Pergunta para ${nomeDe(st.pqAlvo)}: "${texto.slice(0, 60)}"`);
-      toast(`Pergunta enviada para ${nomeDe(st.pqAlvo)}.`);
+      toast(`Pergunta enviada só para ${nomeDe(st.pqAlvo)}. A resposta aparece no card.`, "ok");
       atualizar();
     },
 
@@ -1101,13 +1369,13 @@
       await fb(`aulas/${st.aula}/controle/afinacao`, "PUT", { id: novoId(), pergunta: pergunta.slice(0, 140), ativa: true, ts: { ".sv": "timestamp" } });
       $("modalAfinacao").hidden = true;
       registrar("pesquisa", `Pesquisa rápida: "${pergunta.slice(0, 60)}"`);
-      toast("Pesquisa enviada para a turma.");
+      toast("Pesquisa enviada para a turma. As respostas aparecem no termômetro.", "ok");
       atualizar();
     },
 
     async encerrarAfinacao() {
       await fb(`aulas/${st.aula}/controle/afinacao/ativa`, "PUT", false);
-      toast("Pesquisa encerrada.");
+      toast("Pesquisa encerrada.", "ok");
       atualizar();
     },
 
@@ -1128,18 +1396,18 @@
       });
       $("modalCompasso").hidden = true;
       registrar("cronometro", `Cronômetro de ${st.cpMin} min: ${titulo}`);
-      toast(`Cronômetro de ${st.cpMin} min iniciado.`);
+      toast(`Cronômetro de ${st.cpMin} min iniciado para a turma.`, "ok");
       atualizar();
     },
 
     async pararCompasso() {
       await fb(`aulas/${st.aula}/controle/compasso/ativo`, "PUT", false);
-      toast("Cronômetro parado.");
+      toast("Cronômetro parado.", "ok");
       atualizar();
     },
 
     fecharModal() {
-      ["modalLink", "modalConfirmar", "modalAcervo", "modalAfinacao", "modalCompasso", "modalPergunta"].forEach((m) => { $(m).hidden = true; });
+      ["modalConfirmar", "modalAcervo", "modalAfinacao", "modalCompasso", "modalPergunta"].forEach((m) => { $(m).hidden = true; });
       st.acaoPendente = null;
     }
   };
@@ -1149,8 +1417,13 @@
   document.addEventListener("click", async (e) => {
     const el = e.target.closest("[data-action]");
     if (el && acoes[el.dataset.action]) {
+      // botão ocupado enquanto o comando vai ao servidor: evita envio duplicado por clique duplo
+      if (el.getAttribute("aria-busy") === "true") return;
+      const ocupa = el.classList.contains("btn");
+      if (ocupa) el.setAttribute("aria-busy", "true");
       try { await acoes[el.dataset.action](el); }
-      catch (err) { toast(err.message); }
+      catch (err) { toast(err.message, "erro"); }
+      finally { if (ocupa) el.removeAttribute("aria-busy"); }
       return;
     }
     if (e.target.classList.contains("modal-fundo")) acoes.fecharModal();
@@ -1158,12 +1431,13 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") acoes.fecharModal();
-    if (e.key === "Enter" && !$("modalLink").hidden) acoes.confirmarLink();
+    if (e.key === "Enter" && !$("modalAcervo").hidden && document.activeElement === $("urlLink")) acoes.confirmarLink().catch((err) => toast(err.message, "erro"));
     if (e.key === "Enter" && !$("modalAfinacao").hidden) acoes.lancarAfinacao();
     if (e.key === "Enter" && !$("modalCompasso").hidden) acoes.iniciarCompasso();
   });
 
   $("acervoBusca").addEventListener("input", desenharAcervo);
+  $("buscaAluno").addEventListener("input", (e) => { st.busca = e.target.value; desenhar(); });
 
   // aviso ao fechar o painel com alunos bloqueados
   window.addEventListener("beforeunload", (e) => {
@@ -1178,7 +1452,12 @@
 
   const salvo = lerLocal();
   if (salvo.professor) { $("nomeProfessor").value = salvo.professor; st.professor = salvo.professor; }
-  if (salvo.aula) $("codigoRetomar").value = salvo.aula;
+  if (salvo.aula) {
+    // painel recarregado no meio da aula: volta direto para ela, sem perder a sessão
+    $("codigoRetomar").value = salvo.aula;
+    $("msgInicio").textContent = `Retomando a aula ${salvo.aula}...`;
+    acoes.retomarAula().catch(() => {});
+  }
 })();
 </script>
 </body>

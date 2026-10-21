@@ -1,6 +1,6 @@
 // Portal Maestro · página do aluno · service worker
 // Guarda só a casca da página (abre rápido mesmo com internet ruim). O banco da aula é sempre consultado ao vivo.
-const CACHE = "maestro-aluno-web-1.0.1";
+const CACHE = "maestro-aluno-web-1.1.0";
 const CASCA = ["./", "index.html", "manifest.webmanifest", "icons/aluno-192.png", "icons/aluno-512.png", "icons/aluno-maskable-512.png",
                "bloqueio/msg1.jpg", "bloqueio/msg2.jpg", "bloqueio/msg3.jpg"];
 
