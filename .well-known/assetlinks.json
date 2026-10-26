@@ -1,0 +1,4 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": { "namespace": "android_app", "package_name": "br.com.portaldoeducador.maestro", "sha256_cert_fingerprints": ["2C:88:B1:A8:7A:0C:85:E8:67:BD:39:8D:A9:11:7A:0C:67:9D:66:B8:8C:E8:5E:BD:27:C7:9C:E7:05:9C:59:FE"] }
+}]
