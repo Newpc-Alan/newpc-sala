@@ -297,6 +297,7 @@
         <span class="grupo-rot">Conduzir a aula</span>
         <div class="grupo-btns">
           <button class="btn acao larga" data-action="abrirAcervo" data-alvo="todos" title="Abrir um conteúdo ou link em todos os dispositivos conectados"><span class="ic">📚</span>Enviar conteúdo</button>
+          <button class="btn sec acao larga" data-action="enviarEntradaPortal" title="Abre a câmera de entrada do Portal do Educador em todos os aparelhos: o aluno mostra o cartão com QR e entra"><span class="ic">🔑</span>Entrar no Portal com QR</button>
         </div>
       </div>
       <div class="grupo">
@@ -1097,6 +1098,7 @@
     return (st.alunos[id] && st.alunos[id].nome) || "o aluno";
   }
 
+  const URL_ENTRADA_PORTAL = "https://app.portaldoeducador.com.br/entrar/?qr";
   function confirmar(titulo, texto, acao) {
     $("confTitulo").textContent = titulo;
     $("confTexto").textContent = texto;
@@ -1260,6 +1262,19 @@
       if (fn) {
         try { await fn(); } catch (e) { toast(e.message, "erro"); }
       }
+    },
+
+    // atalho: manda para a turma toda a câmera de entrada do Portal do Educador (o aluno mostra o cartão com QR e entra)
+    enviarEntradaPortal() {
+      confirmar("Entrar no Portal com QR",
+        "Os aparelhos conectados abrem a câmera de entrada do Portal do Educador. Antes, abra a entrada por QR da turma no Portal (Minhas Turmas › turma › Abrir entrada por QR).",
+        async () => {
+          definirDestino("todos");
+          await enviarLink(URL_ENTRADA_PORTAL, "Entrar no Portal");
+          registrar("conteudo", "Entrada do Portal (QR) enviada para a turma toda");
+          toast("Câmera de entrada enviada. Os alunos mostram o cartão com QR e entram.", "ok");
+          atualizar();
+        });
     },
 
     abrirAcervo(el) {
