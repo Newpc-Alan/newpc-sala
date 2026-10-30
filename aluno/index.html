@@ -419,7 +419,7 @@
     const f = document.createElement("iframe");
     f.dataset.url = url;
     f.title = "Atividade enviada pelo professor";
-    f.setAttribute("allow", "xr-spatial-tracking; fullscreen; autoplay; accelerometer; gyroscope");
+    f.setAttribute("allow", "camera; xr-spatial-tracking; fullscreen; autoplay; accelerometer; gyroscope");   // camera: entrada do Portal por QR
     f.setAttribute("allowfullscreen", "");
     f.src = paraQuadro(url);
     $("quadros").appendChild(f);
